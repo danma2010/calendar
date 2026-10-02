@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<title>Israel Annual Calendar & Deck of Cards (Landscape)</title>
+<style>
+  @page {
+    size: A4 landscape;
+    margin: 3.5mm 5mm 2.5mm 5mm;
+  }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Hebrew", "Rubik", Arial, sans-serif;
+    color: #1e293b;
+    background: #fff;
+  }
+  
+  /* Year Picker Toolbar (Visible on screen, hidden when printing) */
+  .control-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #f1f5f9;
+    padding: 8px 16px;
+    border-bottom: 1px solid #cbd5e1;
+    direction: ltr;
+  }
+  .control-panel label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+  }
+  .control-panel select {
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 4px;
+    border: 1px solid #94a3b8;
+    background: #fff;
+    cursor: pointer;
+  }
+  .control-panel button {
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 4px;
+    border: none;
+    background-color: #4f46e5;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .control-panel button:hover {
+    background-color: #4338ca;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding: 2px 4px 0 4px;
+  }
+  .header h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #0f172a;
+  }
+  .legend {
+    font-size: 9px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    direction: rtl;
+    font-weight: 600;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid #cbd5e1;
+  }
+  .box-sat { background-color: #e0e7ff; border-color: #a5b4fc; }
+  .box-holiday { background-color: #fef3c7; border-color: #fcd34d; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    text-align: center;
+    padding: 0;
+  }
+  thead tr {
+    height: 18px;
+  }
+  tbody tr {
+    height: 13.5mm;
+  }
+  th.month-col, td.month-name {
+    width: 64px;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    background-color: #f8fafc;
+    color: #1e293b;
+    border-right: 2px solid #94a3b8;
+  }
+  th.day-head {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #475569;
+    background-color: #f1f5f9;
+  }
+  
+  /* Saturdays */
+  th.sat-col, td.sat-col {
+    background-color: #e0e7ff !important;
+    color: #312e81;
+  }
+
+  /* Holidays */
+  td.is-holiday {
+    background-color: #fef3c7 !important;
+  }
+  td.is-holiday.sat-col {
+    background-color: #ede9fe !important;
+  }
+
+  td.cell {
+    vertical-align: top;
+    padding: 1px 0.5px;
+    position: relative;
+  }
+  .cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    overflow: hidden;
+  }
+  .day-num {
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    color: #0f172a;
+  }
+  .holiday-text {
+    direction: rtl;
+    font-size: 6.8px;
+    line-height: 1.05;
+    font-weight: 700;
+    color: #92400e;
+    margin-top: 1px;
+    padding: 0 1px;
+    word-break: break-word;
+    letter-spacing: -0.2px;
+  }
+  
+  /* Week Badge at bottom of Sunday */
+  .week-badge {
+    font-size: 8.5px;
+    font-weight: 800;
+    color: #4f46e5;
+    line-height: 1;
+    letter-spacing: -0.3px;
+    margin-top: auto;
+    padding-bottom: 0.5px;
+  }
+  
+  /* Card Badge at bottom of Monday */
+  .card-badge {
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    padding-bottom: 0.5px;
+  }
+  .card-badge .suit-sym {
+    font-size: 14.5px;
+    margin-left: 0.5px;
+  }
+  .card-red {
+    color: #dc2626;
+  }
+  .card-black {
+    color: #050811;
+  }
+  td.empty {
+    background-color: #fafaf9;
+  }
+
+  /* Bottom footer & copyright */
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    padding-right: 4px;
+    font-size: 8.5px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .footer-logo {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+  }
+  .footer-text {
+    letter-spacing: 0.2px;
+  }
+
+  /* Print settings */
+  @media print {
+    .control-panel {
+      display: none !important;
+    }
+    .header {
+      padding-top: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="control-panel">
+  <label for="year-select">Select Year:</label>
+  <select id="year-select"></select>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="header">
+  <h1 id="calendar-title">2027 &bull; Israel Calendar</h1>
+  <div class="legend">
+    <div class="legend-item"><span style="color:#4f46e5; font-weight:800; font-size:9px;">W#</span> שבוע</div>
+    <div class="legend-item"><span style="color:#dc2626; font-weight:900; font-size:11px;">A♥</span> קלף שבועי</div>
+    <div class="legend-item"><div class="legend-box box-sat"></div> שבת</div>
+    <div class="legend-item"><div class="legend-box box-holiday"></div> חג / מועד / צום</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="month-col">Month</th>
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+      <th class="day-head">Tu</th>
+      <th class="day-head">We</th>
+      <th class="day-head">Th</th>
+      <th class="day-head">Fr</th>
+      <th class="day-head sat-col">Sa</th>
+
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+      <th class="day-head">Tu</th>
+      <th class="day-head">We</th>
+      <th class="day-head">Th</th>
+      <th class="day-head">Fr</th>
+      <th class="day-head sat-col">Sa</th>
+
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+      <th class="day-head">Tu</th>
+      <th class="day-head">We</th>
+      <th class="day-head">Th</th>
+      <th class="day-head">Fr</th>
+      <th class="day-head sat-col">Sa</th>
+
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+      <th class="day-head">Tu</th>
+      <th class="day-head">We</th>
+      <th class="day-head">Th</th>
+      <th class="day-head">Fr</th>
+      <th class="day-head sat-col">Sa</th>
+
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+      <th class="day-head">Tu</th>
+      <th class="day-head">We</th>
+      <th class="day-head">Th</th>
+      <th class="day-head">Fr</th>
+      <th class="day-head sat-col">Sa</th>
+
+      <th class="day-head">Su</th>
+      <th class="day-head">Mo</th>
+    </tr>
+  </thead>
+  <tbody id="calendar-body"></tbody>
+</table>
+
+<div class="footer">
+  <img src="Dan_logo_blueGreen.png" alt="Dan Mayaffit Logo" class="footer-logo">
+  <span class="footer-text">&copy; 2026 Dan Mayaffit. All rights reserved.</span>
+</div>
+
+<script>
+  // Hebrew Calendar Algorithmic Engine (Exact calculations for 2020–2050+)
+  function isHebrewLeapYear(hYear) {
+    return ((7 * hYear + 1) % 19) < 7;
+  }
+
+  function getHebrewMonthsCount(hYear) {
+    return isHebrewLeapYear(hYear) ? 13 : 12;
+  }
+
+  // Days from absolute epoch to 1 Tishrei
+  function hebrewCalendarElapsedDays(hYear) {
+    const monthsElapsed = Math.floor((235 * hYear - 234) / 19);
+    const partsElapsed = 12084 + 13753 * monthsElapsed;
+    const day = monthsElapsed * 29 + Math.floor(partsElapsed / 25920);
+    const parts = partsElapsed % 25920;
+
+    let altDay;
+    if ((parts >= 19440) ||
+        (((day % 7) === 2) && (parts >= 9924) && (!isHebrewLeapYear(hYear))) ||
+        (((day % 7) === 1) && (parts >= 16789) && (isHebrewLeapYear(hYear - 1)))) {
+      altDay = day + 1;
+    } else {
+      altDay = day;
+    }
+
+    if ([0, 3, 5].includes(altDay % 7)) {
+      altDay += 1;
+    }
+    return altDay;
+  }
+
+  function getDaysInHebrewYear(hYear) {
+    return hebrewCalendarElapsedDays(hYear + 1) - hebrewCalendarElapsedDays(hYear);
+  }
+
+  function getHebrewMonthLength(hYear, hMonth) {
+    // 1: Tishrei, 2: Cheshvan, 3: Kislev, 4: Tevet, 5: Shevat, 
+    // 6: Adar (or Adar I), 7: Adar II, 8: Nisan, 9: Iyar, 10: Sivan, 11: Tammuz, 12: Av, 13: Elul
+    const yearLength = getDaysInHebrewYear(hYear);
+    const isLeap = isHebrewLeapYear(hYear);
+
+    if ([1, 5, 8, 10, 12].includes(hMonth)) return 30;
+    if ([4, 11, 13].includes(hMonth)) return 29;
+    if (hMonth === 6) return isLeap ? 30 : 29;
+    if (hMonth === 7) return 29;
+
+    // Cheshvan (2) and Kislev (3) vary
+    if (hMonth === 2) return (yearLength === 355 || yearLength === 385) ? 30 : 29;
+    if (hMonth === 3) return (yearLength === 353 || yearLength === 383) ? 29 : 30;
+    return 29;
+  }
+
+  // Convert Hebrew Date to Gregorian Date
+  function hebrewToGregorian(hYear, hMonth, hDay) {
+    // Epoch: 1 Tishrei 3761 AM = Sep 7, -3760 (Astronomical)
+    let absDate = hebrewCalendarElapsedDays(hYear) - 1373429;
+    for (let m = 1; m < hMonth; m++) {
+      absDate += getHebrewMonthLength(hYear, m);
+    }
+    absDate += (hDay - 1);
+    
+    // Julian Day Number to JS Date
+    const jd = absDate + 1721425.5;
+    const z = Math.floor(jd + 0.5);
+    const a = Math.floor((z - 1867216.25) / 36524.25);
+    const b = z + 1 + a - Math.floor(a / 4);
+    const c = b + 1524;
+    const d = Math.floor((c - 122.1) / 365.25);
+    const e = Math.floor(365.25 * d);
+    const f = Math.floor((c - e) / 30.6001);
+    const day = c - e - Math.floor(30.6001 * f);
+    const month = (f < 14) ? f - 2 : f - 14;
+    const year = (month > 1) ? d - 4716 : d - 4715;
+
+    return new Date(year, month, day);
+  }
+
+  // Dynamically generate all Israeli holidays and observances for any target Gregorian year
+  function getHolidaysForYear(gYear) {
+    const hYearStart = gYear + 3760;
+    const hYearEnd = gYear + 3761;
+    const result = {};
+
+    function addHoliday(date, name) {
+      if (date.getFullYear() === gYear) {
+        result[`${date.getMonth()}-${date.getDate()}`] = name;
+      }
+    }
+
+    [hYearStart, hYearEnd].forEach(hYr => {
+      const isLeap = isHebrewLeapYear(hYr);
+      const adarMonth = isLeap ? 7 : 6;
+
+      // Tishrei holidays
+      addHoliday(hebrewToGregorian(hYr, 1, 1), "ראש השנה א'");
+      addHoliday(hebrewToGregorian(hYr, 1, 2), "ראש השנה ב'");
+
+      // Tzom Gedaliah (postponed if Saturday)
+      const gedaliahDate = hebrewToGregorian(hYr, 1, 3);
+      if (gedaliahDate.getDay() === 6) gedaliahDate.setDate(gedaliahDate.getDate() + 1);
+      addHoliday(gedaliahDate, "צום גדליה");
+
+      addHoliday(hebrewToGregorian(hYr, 1, 9), "ערב יום כיפור");
+      addHoliday(hebrewToGregorian(hYr, 1, 10), "יום כיפור");
+      addHoliday(hebrewToGregorian(hYr, 1, 14), "ערב סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 15), "סוכות א'");
+      addHoliday(hebrewToGregorian(hYr, 1, 16), "חוה\"מ סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 17), "חוה\"מ סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 18), "חוה\"מ סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 19), "חוה\"מ סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 20), "חוה\"מ סוכות");
+      addHoliday(hebrewToGregorian(hYr, 1, 21), "הושענא רבה");
+      addHoliday(hebrewToGregorian(hYr, 1, 22), "שמחת תורה");
+
+      // Hanukkah (8 days starting 25 Kislev)
+      let hanukkahDate = hebrewToGregorian(hYr, 3, 25);
+      const hebrewNums = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "ז'", "ח'"];
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(hanukkahDate);
+        d.setDate(d.getDate() + i);
+        addHoliday(d, `חנוכה ${hebrewNums[i]}`);
+      }
+
+      // Tu BiShvat
+      addHoliday(hebrewToGregorian(hYr, 5, 15), "ט\"ו בשבט");
+
+      // Ta'anit Esther (moved to Thursday if 13 Adar is Saturday)
+      const estherDate = hebrewToGregorian(hYr, adarMonth, 13);
+      if (estherDate.getDay() === 6) estherDate.setDate(estherDate.getDate() - 2);
+      addHoliday(estherDate, "תענית אסתר");
+
+      addHoliday(hebrewToGregorian(hYr, adarMonth, 14), "פורים");
+      addHoliday(hebrewToGregorian(hYr, adarMonth, 15), "שושן פורים");
+
+      // Pesach
+      addHoliday(hebrewToGregorian(hYr, 8, 14), "ערב פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 15), "פסח א'");
+      addHoliday(hebrewToGregorian(hYr, 8, 16), "חוה\"מ פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 17), "חוה\"מ פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 18), "חוה\"מ פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 19), "חוה\"מ פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 20), "חוה\"מ פסח");
+      addHoliday(hebrewToGregorian(hYr, 8, 21), "שביעי של פסח");
+
+      // Yom HaShoah (Nissan 27, shifts to prevent Shabbat conflict)
+      const shoahDate = hebrewToGregorian(hYr, 8, 27);
+      if (shoahDate.getDay() === 5) shoahDate.setDate(shoahDate.getDate() - 1);
+      else if (shoahDate.getDay() === 0) shoahDate.setDate(shoahDate.getDate() + 1);
+      addHoliday(shoahDate, "יום השואה");
+
+      // Yom HaZikaron & Yom HaAtzma'ut (Iyar 4 & 5, with standard shifting laws)
+      let zikaronDate = hebrewToGregorian(hYr, 9, 4);
+      let atzmautDate = hebrewToGregorian(hYr, 9, 5);
+      if (atzmautDate.getDay() === 5) { // Friday -> shifted to Thursday
+        zikaronDate.setDate(zikaronDate.getDate() - 1);
+        atzmautDate.setDate(atzmautDate.getDate() - 1);
+      } else if (atzmautDate.getDay() === 6) { // Saturday -> shifted to Thursday
+        zikaronDate.setDate(zikaronDate.getDate() - 2);
+        atzmautDate.setDate(atzmautDate.getDate() - 2);
+      } else if (zikaronDate.getDay() === 0) { // Sunday -> shifted to Monday
+        zikaronDate.setDate(zikaronDate.getDate() + 1);
+        atzmautDate.setDate(atzmautDate.getDate() + 1);
+      }
+      addHoliday(zikaronDate, "יום הזיכרון");
+      addHoliday(atzmautDate, "יום העצמאות");
+
+      // Lag BaOmer
+      addHoliday(hebrewToGregorian(hYr, 9, 18), "ל\"ג בעומר");
+
+      // Yom Yerushalayim
+      addHoliday(hebrewToGregorian(hYr, 9, 28), "יום ירושלים");
+
+      // Shavuot
+      addHoliday(hebrewToGregorian(hYr, 10, 5), "ערב שבועות");
+      addHoliday(hebrewToGregorian(hYr, 10, 6), "שבועות");
+
+      // Tzom Tammuz (17 Tammuz, postponed if Saturday)
+      const tammuzDate = hebrewToGregorian(hYr, 11, 17);
+      if (tammuzDate.getDay() === 6) tammuzDate.setDate(tammuzDate.getDate() + 1);
+      addHoliday(tammuzDate, "צום תמוז");
+
+      // Tish'a B'Av (9 Av, postponed if Saturday)
+      const avDate = hebrewToGregorian(hYr, 12, 9);
+      if (avDate.getDay() === 6) avDate.setDate(avDate.getDate() + 1);
+      addHoliday(avDate, "תשעה באב");
+    });
+
+    return result;
+  }
+
+  // 52 Playing cards setup
+  const ranks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+  const suits = [
+    { symbol: "♠", color: "black" },
+    { symbol: "♥", color: "red" },
+    { symbol: "♦", color: "red" },
+    { symbol: "♣", color: "black" }
+  ];
+
+  const deck = [];
+  suits.forEach(suit => {
+    ranks.forEach(rank => {
+      deck.push({ rank: rank, symbol: suit.symbol, color: suit.color });
+    });
+  });
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  function createCardElement(card) {
+    const span = document.createElement('span');
+    span.className = `card-badge ${card.color === 'red' ? 'card-red' : 'card-black'}`;
+    span.innerHTML = `${card.rank}<span class="suit-sym">${card.symbol}</span>`;
+    return span;
+  }
+
+  function renderCalendar(year) {
+    document.getElementById('calendar-title').innerHTML = `${year} &bull; Israel Calendar`;
+    const holidays = getHolidaysForYear(year);
+
+    // First whole week starts on the first Sunday of the year
+    let firstSunDay = 1;
+    while (new Date(year, 0, firstSunDay).getDay() !== 0) {
+      firstSunDay++;
+    }
+    const firstSunday = new Date(year, 0, firstSunDay);
+    const firstMonday = new Date(year, 0, firstSunDay + 1);
+
+    function getWeekNumberForSunday(mIdx, day) {
+      const d = new Date(year, mIdx, day);
+      const diffDays = Math.round((d - firstSunday) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return null;
+      return Math.floor(diffDays / 7) + 1;
+    }
+
+    function getWeekNumberForMonday(mIdx, day) {
+      const d = new Date(year, mIdx, day);
+      const diffDays = Math.round((d - firstMonday) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return null;
+      return Math.floor(diffDays / 7) + 1;
+    }
+
+    const tbody = document.getElementById('calendar-body');
+    tbody.innerHTML = '';
+
+    for (let mIdx = 0; mIdx < 12; mIdx++) {
+      const daysInMonth = new Date(year, mIdx + 1, 0).getDate();
+      const startDay = new Date(year, mIdx, 1).getDay();
+
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td');
+      nameTd.className = 'month-name';
+      nameTd.textContent = monthNames[mIdx];
+      tr.appendChild(nameTd);
+
+      let dayCounter = 1;
+
+      for (let c = 0; c < 37; c++) {
+        const td = document.createElement('td');
+        const dayOfWeek = c % 7;
+        const isSunday = (dayOfWeek === 0);
+        const isMonday = (dayOfWeek === 1);
+        const isSat = (dayOfWeek === 6);
+
+        if (isSat) td.classList.add('sat-col');
+
+        if (c >= startDay && dayCounter <= daysInMonth) {
+          td.className += ' cell';
+          const hKey = `${mIdx}-${dayCounter}`;
+          const holidayName = holidays[hKey];
+
+          if (holidayName) td.classList.add('is-holiday');
+
+          const container = document.createElement('div');
+          container.className = 'cell-content';
+
+          // 1. Day number at top
+          const daySpan = document.createElement('span');
+          daySpan.className = 'day-num';
+          daySpan.textContent = dayCounter;
+          container.appendChild(daySpan);
+
+          // 2. Holiday name in Hebrew
+          if (holidayName) {
+            const holSpan = document.createElement('span');
+            holSpan.className = 'holiday-text';
+            holSpan.textContent = holidayName;
+            container.appendChild(holSpan);
+          }
+
+          // 3. Week number at bottom of Sunday
+          if (isSunday) {
+            const wNumSun = getWeekNumberForSunday(mIdx, dayCounter);
+            if (wNumSun && wNumSun <= 52) {
+              const weekSpan = document.createElement('span');
+              weekSpan.className = 'week-badge';
+              weekSpan.textContent = `W${wNumSun}`;
+              container.appendChild(weekSpan);
+            }
+          }
+
+          // 4. Card symbol at bottom of Monday
+          if (isMonday) {
+            const wNumMon = getWeekNumberForMonday(mIdx, dayCounter);
+            if (wNumMon && wNumMon >= 1 && wNumMon <= 52) {
+              const card = deck[wNumMon - 1];
+              container.appendChild(createCardElement(card));
+            }
+          }
+
+          td.appendChild(container);
+          dayCounter++;
+        } else {
+          td.className += ' empty';
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Populate Year Select options dynamically from 2026 to 2050
+  const yearSelect = document.getElementById('year-select');
+  for (let y = 2026; y <= 2050; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === 2027) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  yearSelect.addEventListener('change', (e) => {
+    renderCalendar(parseInt(e.target.value, 10));
+  });
+
+  // Initial render (2027)
+  renderCalendar(parseInt(yearSelect.value, 10));
+</script>
+
+</body>
+</html>

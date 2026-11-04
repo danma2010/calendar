@@ -1,665 +1,259 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Israel Annual Calendar & Deck of Cards (Landscape)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Israel Calendar</title>
 <style>
-  @page {
-    size: A4 landscape;
-    margin: 3.5mm 5mm 2.5mm 5mm;
+  :root{
+    --sat:#e0e7ff; --sat-head:#c7d2fe; --hol:#fdf0c2; --hol-line:#f1d27a; --hol-text:#9a3412;
+    --week:#4f46e5; --red:#dc2626; --black:#111827; --joker:#7c3aed;
+    --line:#d6dae3; --empty:#f6f7f9; --muted:#6b7280; --ink:#111827;
   }
-  * {
-    box-sizing: border-box;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Hebrew", "Rubik", Arial, sans-serif;
-    color: #1e293b;
-    background: #fff;
-  }
-  
-  /* Year Picker Toolbar (Visible on screen, hidden when printing) */
-  .control-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background-color: #f1f5f9;
-    padding: 8px 16px;
-    border-bottom: 1px solid #cbd5e1;
-    direction: ltr;
-  }
-  .control-panel label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #334155;
-  }
-  .control-panel select {
-    padding: 4px 10px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 4px;
-    border: 1px solid #94a3b8;
-    background: #fff;
-    cursor: pointer;
-  }
-  .control-panel button {
-    padding: 4px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 4px;
-    border: none;
-    background-color: #4f46e5;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .control-panel button:hover {
-    background-color: #4338ca;
-  }
+  @page { size: A4 landscape; margin: 4mm 5mm; }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2px;
-    padding: 2px 4px 0 4px;
-  }
-  .header h1 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: #0f172a;
-  }
-  .legend {
-    font-size: 9px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    direction: rtl;
-    font-weight: 600;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .legend-box {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    border: 1px solid #cbd5e1;
-  }
-  .box-sat { background-color: #e0e7ff; border-color: #a5b4fc; }
-  .box-holiday { background-color: #fef3c7; border-color: #fcd34d; }
+  /* toolbar (screen only) */
+  .toolbar{display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 12px;
+    background:#eef0f6;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .toolbar label{font-weight:700;font-size:14px;color:#374151}
+  .toolbar select{font:inherit;font-weight:700;font-size:14px;padding:4px 8px;border:1px solid #9ca3af;border-radius:6px;background:#fff;cursor:pointer}
+  .toolbar button{font:inherit;font-weight:700;font-size:14px;padding:6px 16px;border:0;border-radius:6px;
+    background:var(--week);color:#fff;cursor:pointer}
+  .toolbar button:hover{background:#4338ca}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-  th, td {
-    border: 1px solid #cbd5e1;
-    text-align: center;
-    padding: 0;
-  }
-  thead tr {
-    height: 18px;
-  }
-  tbody tr {
-    height: 13.5mm;
-  }
-  th.month-col, td.month-name {
-    width: 64px;
-    font-weight: 700;
-    font-size: 10px;
-    text-transform: uppercase;
-    background-color: #f8fafc;
-    color: #1e293b;
-    border-right: 2px solid #94a3b8;
-  }
-  th.day-head {
-    font-size: 8.5px;
-    font-weight: 700;
-    color: #475569;
-    background-color: #f1f5f9;
-  }
-  
-  /* Saturdays */
-  th.sat-col, td.sat-col {
-    background-color: #e0e7ff !important;
-    color: #312e81;
-  }
+  .sheet-wrap{overflow-x:auto;padding:6px 8px}
+  .sheet{width:287mm;margin:0 auto}
 
-  /* Holidays */
-  td.is-holiday {
-    background-color: #fef3c7 !important;
-  }
-  td.is-holiday.sat-col {
-    background-color: #ede9fe !important;
-  }
+  /* header: title left, legend right */
+  .head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.2mm}
+  .head h1{margin:0;font-size:13pt;font-weight:800;letter-spacing:.2px}
+  .legend{display:flex;gap:3.5mm;align-items:center;font-size:6.5pt;color:#374151;direction:rtl}
+  .legend .sw{display:inline-block;width:3mm;height:2.6mm;border:.5px solid #9ca3af;vertical-align:middle;margin-left:1mm}
+  .legend b.w{color:var(--week)} .legend b.c{color:var(--red)}
 
-  td.cell {
-    vertical-align: top;
-    padding: 1px 0.5px;
-    position: relative;
-  }
-  .cell-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    height: 100%;
-    overflow: hidden;
-  }
-  .day-num {
-    font-size: 9.5px;
-    font-weight: 700;
-    line-height: 1;
-    color: #0f172a;
-  }
-  .holiday-text {
-    direction: rtl;
-    font-size: 6.8px;
-    line-height: 1.05;
-    font-weight: 700;
-    color: #92400e;
-    margin-top: 1px;
-    padding: 0 1px;
-    word-break: break-word;
-    letter-spacing: -0.2px;
-  }
-  
-  /* Week Badge at bottom of Sunday */
-  .week-badge {
-    font-size: 8.5px;
-    font-weight: 800;
-    color: #4f46e5;
-    line-height: 1;
-    letter-spacing: -0.3px;
-    margin-top: auto;
-    padding-bottom: 0.5px;
-  }
-  
-  /* Card Badge at bottom of Monday */
-  .card-badge {
-    font-size: 13px;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: auto;
-    padding-bottom: 0.5px;
-  }
-  .card-badge .suit-sym {
-    font-size: 14.5px;
-    margin-left: 0.5px;
-  }
-  .card-red {
-    color: #dc2626;
-  }
-  .card-black {
-    color: #050811;
-  }
-  td.empty {
-    background-color: #fafaf9;
-  }
+  /* grid */
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  col.mcol{width:19mm}
+  th,td{border:.5px solid var(--line);padding:0;overflow:hidden}
+  thead th{font-size:6.2pt;font-weight:600;height:4.6mm;color:#374151;background:#f3f4f6}
+  thead th.sat{background:var(--sat-head)}
+  thead th.mhead{font-size:6.5pt;font-weight:800;letter-spacing:.3px}
+  tbody th.month{font-size:7pt;font-weight:800;text-align:left;padding-left:1.2mm;background:#f9fafb;
+    text-transform:uppercase;letter-spacing:.2px;color:#1f2937}
+  td{height:15mm;vertical-align:top}
+  td.empty{background:var(--empty)}
+  td.sat{background:var(--sat)}
+  td.hol{background:var(--hol);box-shadow:inset 0 0 0 .4px var(--hol-line)}
+  td.sat.hol{background:var(--sat);box-shadow:inset 0 0 0 1.2px #e9b949}
+  .cell{display:flex;flex-direction:column;align-items:center;height:100%;padding-top:.6mm;gap:.35mm;overflow:hidden}
+  .day-num{font-size:7.5pt;font-weight:600;line-height:1}
+  .holiday-text{font-size:4.7pt;line-height:1.12;color:var(--hol-text);font-weight:700;direction:rtl;text-align:center;
+    width:100%;padding:0;letter-spacing:-.15px;word-break:keep-all;overflow-wrap:normal;hyphens:none;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .week-num{font-size:6.3pt;font-weight:800;color:var(--week);line-height:1}
+  .card-badge{font-size:10pt;font-weight:800;line-height:1;letter-spacing:-.3px}
+  .card-badge.red{color:var(--red)} .card-badge.black{color:var(--black)} .card-badge.joker{color:var(--joker)}
+  td.today{outline:1.6px solid var(--week);outline-offset:-1.6px}
 
-  /* Bottom footer & copyright */
-  .footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 6px;
-    margin-top: 2px;
-    padding-right: 4px;
-    font-size: 8.5px;
-    font-weight: 600;
-    color: #475569;
-  }
-  .footer-logo {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: inline-block;
-  }
-  .footer-text {
-    letter-spacing: 0.2px;
-  }
+  /* footer */
+  .foot{display:flex;justify-content:flex-end;align-items:center;gap:1.4mm;margin-top:1.2mm;font-size:6.2pt;color:var(--muted)}
+  .foot img{width:4.6mm;height:4.6mm;display:block}
 
-  /* Print settings */
-  @media print {
-    .control-panel {
-      display: none !important;
-    }
-    .header {
-      padding-top: 0;
-    }
+  @media print{
+    .toolbar{display:none}
+    .sheet-wrap{padding:0;overflow:visible}
+    td.today{outline:none}
   }
 </style>
 </head>
 <body>
-
-<div class="control-panel">
-  <label for="year-select">Select Year:</label>
-  <select id="year-select"></select>
-  <button onclick="window.print()">Print / Save PDF</button>
+<div class="toolbar">
+  <label for="year">Select Year:</label>
+  <select id="year"></select>
+  <button id="print" type="button">Print / Save PDF</button>
 </div>
-
-<div class="header">
-  <h1 id="calendar-title">2027 &bull; Israel Calendar</h1>
-  <div class="legend">
-    <div class="legend-item"><span style="color:#4f46e5; font-weight:800; font-size:9px;">W#</span> שבוע</div>
-    <div class="legend-item"><span style="color:#dc2626; font-weight:900; font-size:11px;">A♥</span> קלף שבועי</div>
-    <div class="legend-item"><div class="legend-box box-sat"></div> שבת</div>
-    <div class="legend-item"><div class="legend-box box-holiday"></div> חג / מועד / צום</div>
+<div class="sheet-wrap">
+  <div class="sheet">
+    <div class="head">
+      <h1 id="heading"></h1>
+      <div class="legend">
+        <span><b class="w">W#</b> שבוע</span>
+        <span><b class="c">A♥</b> קלף שבועי</span>
+        <span><i class="sw" style="background:var(--sat)"></i>שבת</span>
+        <span><i class="sw" style="background:var(--hol)"></i>חג / מועד / צום</span>
+      </div>
+    </div>
+    <table id="cal" aria-label="Annual calendar"></table>
+    <div class="foot">
+      <img alt="DM logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAABevklEQVR42u29d5xlV3Xn+917n3NuqlzVudVBqdWKoIQEAkkgwMiAwdjCNsYDYxszOOAw43EExHjG9rOZMc42xjbOSGAbA8YkSwhltbJaWd3qnKor3brhnLP3Xu+PfW6o1N0CbMybV3wKdVd3V9179tor/NZv/ZbiW/BDRBSgAQU4pZQs83dGgQ3AaeBOA9aCWg2Mg1RAjYRv4YtvxSzQBiaBozh3BGP2AfuAA0qp4yu8DgMI4Jd7Hf/RP9S34KGjlHKL/mw1cB64S0BdCGwD2QQyDlH8df5oC34K9F7gaeBR4H7gMaXUoUWvwxS//JYxBvUtcPA6nHnv0I/JscEJRi7zcB3wco26AMzw0n/tcDhR4AVZ+Ha9KNAYrYtLzHIHpk/wjOaBx4DbgS8B9yilZhYbw2Jj/f8N4IXd9u5NEpEh4FXg3+zx12qijX2niffOC3i0QlBaeVFKe0Ateo8LDUEJKGU6zmXFl9Rx832GsfgfHAJ/G+h/gNkvKjUytcgYviVDxL/7wd9yyy1R/9eyLLtSxP2eSL5P+j5SabtU2nkqbZtKy+c+Fedy8T4XJ1acOHE+Eycn+kzF+VScz0TEioiXF/Dhi3+Ui4hb9GeHRORPROTqRe8vKoz7//cAyyVTSikLcEgO1day6i3eyw9rra/qXLac1HkvKK2UAt3/8qW4ksaHL4si/J/yJ/vphfNXKKVRJ/T6J/tGXQ9h+r5+L/BR4ONKqdmOIayUvP5fZwAiYjpxUkSGnMt/SOA9kYnPCFE8FTzOIUbpjjtXS1x5OAFBi8KIAqWCEaD6zmWlc1PdX2qlF53fC34/iIhorV3xjTovcq/D/XGz3vyjoaGhycXv/f86AyiSO1FKiYjUcpf+iFL6xyMdbwGwtu2UBqV09zS8Ao+gTvCyO55Ae43qeAI0cOrPWXdD/Dfk8fjiZXXex0Fwvw/zv6/UyPQ32xD0NyvOK6W8UkpS23y79fkDsSl9KNLxltzmzjnnlY4NYoxIz0tqAb3k1i+1aAG89oiEJK/wDad4oIIX6Tu3b8gz7mAFFlgP5ldg+EER+yMi79dKKSci5puRH6hvlrtvZI3LYh39WmySV4JgbWaVMloprRf+GwfKoVTvy16d2tEoQHuFKsKBoFGn4gmKb/515gQn+u4OKJJdfxfo/66U+uo3wxvof8fDj5RS7sCBA9U8T/9XoqM7Y5O8MrdtZ23mUSYCtMjCeB1KNIOwyBPIKWZlWhCR4AnEIaiiplv8P3o/Q4VPwSG4b5Qn6LfLCHxhCPpK4DYR+fD09PRI4Q2i/894gMKtKaWUb2azL4116Q8iU7owdS0R8EYpo1AgusjaQRFu7cLDdKD8gvgvhTdYnA9KkYwt9MEqxHalTmgyC4xBwjcOr8cU3uAb++HxXqMLk+MZ4D1KqS/1P7dvWQPod2ft9vzPmyj6H5EpmZZrWZSOwuGE6KxF0Yf2olSfEahOteYAV3xd9fypknBWIiitMSjMAqxGcDhy78l9+K/zvmskWmsipYiNIVaGSGv0gkpAuullYRMnTES/dsi5Gxb+F+hfKhLkf9OQoP6NXb49dOjQ6rHx4Y8kceWNqW2JV0q00lq65xoebrde8iHuFs5gQewvUrRuRt/5HgHOjbrg70yWMtlscKwxz/FWg7m0RcOmtF1G7n2oJFT4DkYpjFbEWlEympKJqUQxA0mZoaTCSKnKaKnGUKlCzZRZiD1I8RDVN84hFE7Le/+vWqfvVKq6t/Msv2UMoPOCG42Zy+Kk/LdxVDqjbRsWbYxCqSX1uwRM1nRKPOnUb0VIUKr7kL33CI7YKFDh0GfSFs/NTPHc9HH21Gc43mrSzDMcDq0UxihipYmNCr/XCqM1Woffa6XQWjAiaK1QSrqvMFKKWEfU4jLj5RprykOsrY0yXhkk0fG/0fXxFnQEHLTWfn8cx7f8WxmB+rc6/LnG9FvKcfkv4jiuZnnLam0iHwr/hbmndGr1YAmm8/C97mVjhJRJK4ii8LXJVoNHjx3j4SOHeW52ipmsjUeIjaZsNLHWGK2IlELr8G87t10r0FphlEJ1jQBM51MrNOHPtVHFHQ/loUJIlGYgLrGmOsJpgxOsqYxSiUoLwKBOGDsZaLTy3/MOtAGsc+5dURT92b8Fgqj+LeDcemP2J6qVyoeds3jvvdY9Py4opJvzqIUGUPyNTl6AV3gpDi6KceLZeewYt+7Zy4NHDzGVpRgDpciQGBMOW4HRECvQnRuvFLowrJBvSNeraNPxCCoYhVEkRlMyGkRw3iEIRmsSE1OOYmpRQqw1WgUDG4kqbKiNs6Y2hlEGlFoGrVDLGsBJjMR3H5Rz71NR9D++0Y0l9Y3s3imlXKMxe2O1OvS+LG86wWut9LI/wysFhV3IkpchiHgiFLFJyJzlq/sO8Llnd/Hk1HFyhEockcQm5A7KY4wiMjoctnhwHp87nHV464MLkU5JGAwlvASF1hpjFGgd0EblqcaazSNDnD4xztraCBOVAYZLVapxQslExCpa8Pi8WHSRnPbjOSfzAqfyeMMl0gb8h5UyP9mPon7TDUBE1K233mquvfZaW2/M/PpAdfhn22ndaa210kqdqIQWpcJnn6sPblGomAgrwld27+cTjz/Fk1PTaKOolhNMcXgmUhhdBJTc4VKLzyxiPeJCohcyjiLZMyEcKMLtVcXNV1qRiydzllqScObq1Vy8fj3nr17LusGRpcYrltTlIaEs3HikNbE2JDoqsItFrl59XaliH3jk/0gp8+5vlCdQ36iYP1uf+vWhgdGfTfP5XCkV92fHSxyghDa9UgXgWtwc5z0lE2GU4b6Dh/nrBx/ngcPHULGmGkehWtaCjhUGBdbj2hbXyvG5RyMYDZFRGBOq6+BkpEgeBSSUf4rQT4yMJjKaDSPDvHTrVi7dtJkNg0PdPMWKZardYLI5x7F2nZm0QSNPabscK76oSkLuECtDLUoYSipMlIdZOzDK6sowUah4vxGGkAOx9/YjxsTv+kbkBOobcvizx24cGpp4X5rN50rruPtdhf5fLv1hRbcuRFlFxZQ40mzykXse5V+e2YNTioFyhFIhA4wihYjg2jmu6ZDUoSQkbSYKhwke5y1eHEpCUjhYjhmplBmulhkslagkMbHR6EjjvHDGxDgvP/1MBpJy94bvqR/n2bljHGrMMJc1ceKCM9M9oEqjimaDBMi6CDFeHF6EWEeMlQY4c2gd20Y3MlIaONXYf6LOZQ7EYH9bqfi9X291oL7ew5+aOvoTo6PjH25nTauD71NF8Ct+gHT/v/tl6f1058MhGZ3whaf38Ht3PsLe+SYDlYRIh/JQxxotgmvmZI0cckErRRyF2O29J3fh0AfLEetHapyxaoyz1oyzeXyMNUMDDFfL1OKEaEGHlsKzhl5NPWuze/YYT0wf4kBzhlQckQmuPeqEk76SNGQvHoUPJWUf0OgJxuCcQ5xQVQlnDK/jwlVnMJTUCpP/mo+gAI3y9yuVfFBkR6zUpfm/mwF0Dn9y8uB3Dg+PftKJtcELLmPWSoVCv3B90gfuOecpJzH13PPhWx7gHx7bRVRKqMQmgDUm1Oeu7bCNHMl9yLyj0OrNckvuc0YqMdvXj/OSrRt58aa1bJkYoRpVFvA0HAUAVHglESnKP8N01uSByQM8OXWE+byF0ZrYmPAvxaF1SDBjpdECyjsM0q0cnIc0d6SZxeYe60InMTKachJRKhkk8mSSU1UlLp44kwvGtxYXQ04BSFo2iDogcmQ/GKnSn36tnkB9rfDu0emjFw+Uy7dro0uIKHUin9Y9dNUJ/8Xhl3l2coZf/vRdPHx4mpHBSuHugzv3uSWfz5HMo3S48ShoZTmI48w1w7xq+xauOWczZ6waQxOFuycWVzSVPKET2I8qK4FIxXgRHpw8wO1HdjGdtyhFMYk2KB/QxjgyxHGE9oLPcsgtkRK0gnbqmalnHJ9tMTvfpp1arPVFqVmUlkaTGE2SaJJKzPBoheHRhGpZs21oHS9Zcz4lk5yiEazEQPJYm706jiu3fC2w8QvqOr3//e/XgMzO7h9X2nwyiqOKs9ZrrdXKBtMJ9SF+C+C9UE4qfOWZfdz4T3czmVpGKuWQyMUK5YV0vo1tWhQh9isU9WZGZDyXbVnDmy7ZxlVnb6IWlwMAbB056YI+giowe6960G3n8Pc0Zrjt0C6en5/GGE01LiMSegXl2DBYqmByR1pv0m616XQujtdzDh1rMDXTIrMepYQoCh6jWoq6oUBr3cU8LULezGm0cqYnI1aPV8nbB5jPWlyz8RKqUflryQuK0kkrHcUfF2leopTeJyL6hTSQXpABXHPNNTrE/cMfGx0a2tJqN63WOloxu5WFzTcJRS3lUoW/u+9JfuNzO5A4oRrHWOvRscanjnw+Q6yEMs9o2pnF2pzLT1/DD7z8Al5+9iY0Bi85qW2hlQ6fXd4FRULmUVoworAIsTJ4JXzp0HPccWwv3igqSYLyHuscUawZrFTQqWP+6Cy23UIrRRJHTM7m7DowzdRMGw2USppyOSryF4U2AW3sQMuqSBZR/XBzwB+mptvUGznT8228h1dvuYxEfU2eQANOY1Z5kr+96aaPX90pzU+1Mjjln3bLLbdE1157rT127MDPTUys/tVGq2GjyETiF1quQi2b+ndatOWkxB/d8gi//cVHqFTLIYnTAfR0aYj1nVsFUG+nnL1mkB965Yt53YvOIEaT+qzg7ym6/5OAH/aSzOAhRXkEiHTEdJbyqb1P8ujcJOUopqR10YhyjNcGKCvD1NHjzM/No4BqYvCi2X2wzv6jDQQoxYY4CuVmB1LWJpSekdZFWWnoOkUFSkkXdlZ9rCVQ1Gqal59xFq/Y9KIiVVJfA2zcSQrtbygV/+wLyQfUC4n7k5OHLi+VS3dpo0Ubo/uB+gVGoJY2e0Q85VKZ3/3CA/zel3cyUKuEFMiA0jrU8m0LRmMiTTvPMHi+72Xn8K7rLma0UqXt2mGQS4XOvO5klULRq9cLX4MITixxFLF7foabnn+CSZtSNhFeBO8dpdiwfmQEmW1y9MARrLMYo4ljw/HZlF0H6qS5p5LEiDisz1BaqMYxw9USg5Uy1VJCyWi8EnJnadmU1IfksRxHRMZ0E2EQ8CE8GaXRGqol+PZzL2Xb+JZlQ4F0O2bLG0DxbzpG8Bql4i+eaj6gXsCQRjw1deSBgcHB7c47r/TiPm3PfSkWzmN4Hw7/97/wIL/z+UcZHKrh8d3bYZtFaWcUOjLMNtqcubbGz7/lpbz8rM3kkpE7F+LqYspXD1bso29Jh2xBbGIemjrCTXueJNNCog0aIbeWoVqZidoQx/Ycpn58hiTSRAYibXj+yDx7Ds8TRQYhgExrhqqctXY156xfy+mrVrF2aJCBcpnEGBQKJ0KaZ0y3muybnWLX1GEOzE7StilxFHeJJp3nZAihwYljzWCV77volVSjStdxrnTrV2hDF30Dt3+G+oUjjMydClysTtX1Hz6691fXrFr7c812y5rIRP2Mm+WMoEOacN5TKVX42Fce5Vf/YQeDgzU6BCAQbCMDJ5hQ9NNotnj95Vv4+e+6ivFqmVaeBk6AYmloEbqdvA5RUOnw33D4CXcdPcDH9zwJiaGsTFF+5qwdG2ZQxTzz+POkzTalJCLSkBjNrkMNDk01cd4Rac8FG9Zx3fnncNnmTUwMDK5Qoi3f8JlszfHgwed4+PAuUmdJTByek+ocsgKtcD7nO7ZdxjmrtuK9R/dRI61YrLeAEOsYo6IT4gPepx8xpvyuU/ECJzSAm266ydxwww1uaurIRVFsdmhjVBTFWjgBe7XPCJz3VMsVPvfgLn72z79KqVoKhx+Fm+yKw9cRWA95lvITb7yYd7/mUrzPyKyjE2nkBOz+TvLVeVlePIkpcfuR/fzVrscxSUSp6P97Z9m0ZoJSCk8+/AzeC8ZoTIE27jnU4Oh0C2M8l2zewHddehGXbd1EaDt5vHd9OFbPKkN8L/oaIt2b3rm9++cnuXXXwxxtTFOK4gIWDnmcFY84y5u3v5QtI+vDsxPHwfoR9jeOMpfXsWJRSiiZmNHSMJtq65moTPSqG1QnFDgQA/ZqpZLbTmYE6lRi/+Ej+24bnxh/eZZlTitt0OqkFar3nmo54eG9x/mR3/4CKYYoKkoyrfDNPNz8WJFZjybng29/BW+89BzSrAGo7i3oDHjIcvTM4s86+J4XITEJ9xw7xB8//RgmiYhVIHqIc2xdvwbTcDz+4NNEWmNML2TtPjDHgWN1zl4/xjtf/hKuO/dsDBorGSISWr29I18G81IsdFUFy7DwVJlY7t77GDuP70EbHUpU8SRorjztPLaPbwWE3bMHeXpqL1NZHV+0t01RXgoO7x0GzcbqGi6c2E4lqvSHFgcYj31E8/ClcIk/UdNInfTwj+793pGR0b/JstxFUYDHwmDWykbgBWKtmGlZ3vmbn2XPVEqlHOGK5oxrWcR7TKSxzlOOPL/5w6/i5ds302o30MZ0weOO+xcWGoEqcIUu2qgA5ylHCY/PTPGhxx/EGU1chAjncs7cuBY973j0vicoJxGx1iCeUhLxzIE6h47M8B2Xncd/edVVrKrWyCUt6GPBEI2o7lxCcPh6Sbmj1PJk6/7kbseRJ3jg6NOgNeNRjatPezET1VGatsndB3eyt3GMOIqJlQnvs4CVBUGrUIGIEjKXMmyqXLn2YsbKo10j8Hin0ca59o9HUeV3T1QVqBMxeQ8ePFhWxu0cHh7aHCA6NH3ATjD45bPSUlLiv/7Rl/j0ffsYHa7ixKMijc8ckju0UeQilLXlw+95LVdu20Sz3SgaOkvhZKVYwB3wHWi522sQSkpzsN3mVx/ewbRYSgUYk+c5Z2xcw0BmuP+OR4gjQ6QDSaSaxDx/ZJ52I+e93/Zyvv2CcwFL5izK6GWmjhS6v9+/zNyAUss/WinmEJVS3HP4UY42p7nmtEsYjGtMNqe548AjTOYNSlGMKtDE0PQUvJdu4wtxGO0ZSEpE2jCgK1y85gIqXfg7REvv3fF6ff6c4eHh6cJDySkBQZ3+/oHDe941Pj6+Jctzq5WOOu09EVA+ZAJKswBndc5TK1X5+Fd28s937WF4uEZuHdpoJPVILmit8Q6US/n1H72OK7dtopWucPiBEtG7VSoQOpQUmUhR7sUoWiL87hM7OWhzBiODE8Hmlo1rxhiixH1ffRClNALkzlMuRTx/pE5NYj70A2/grDWrsD5FqQKK7rKVwi9Cfil4pBgfC+Vtj7jayUE6jKPFt62HkVy25lxyn1MyZXbP7ufeQ0/QFkcpShAJFVLuwBe8Bq0VuThs7tgyOMFZo6cxXhmhFCVY7xZXBBqwWptVg4OVn1ZK/VLBH3AnHQwREXXNNde4I0eODCiR/5pnVrQ2ekH07eVbC/j33gnlOOb5I9P87icepFyqIi6kbmI9PvWhmSKadqvNL7/9ZVx7wek02/O9rFdkhZDku1AuXSp5oHdpESJj+NOnn+Kh2RlKJiLzkFnH6FCNjYOjPHjbY1hXVCaZYLTh4JE5xnWJD7/9zZy1ZhW5bXfBpU5yqbqTAaGH0BlIcR20teOiFw2qiXeIyAmyb0PJlHni+C5u2f8wLULm78WjtCbLhVbbYV3ADfLcMqwTrtl4IdduupyNg+uoRBU0hkQnxEsIqt4AonX0nrm5uVWAL6D8ExvArbfeapRSYm37h8bGxjcI4jtF24IMTPUAN/GBcqVEUMrwW397D8emMxKtAujhFJIFSpY2mrn5Bj94/Xl818vOo9max/TV99J9oLIU9pYeY4iC2u29kEQJXzx4gM/s308lirFOsN4TxxFnrlvHw199gkY9xeiQc2itmTw+z7qkwm+8/U2sHqrhXIZWBudDi9r7InnryzylXzZEOkbQiYlSkEN64+YiflkjkKIM3HnsOW4/uJPO/GuHe9huedoth/eC80Irzdg6sIpvO/0Ktg5v7EwgnwwlVsXk0WitVnqvUko+8IEP6BOGgCL2u71791a8uJ+y1ooxWokswFd64a0TDgSs8wzUyvzL3c/y+bv3MDA0gHMOjEEyB+KJEkN9vs0rLljLT7z5JbTTFqqAY/sLK5G+5s2CHEO6eUAv4zfsbzT4syefJo4icILTCo/joi2beO7BPRw+ME21WsJaR2w09WbKqrjE//y+72CiVimmjgxGm75xEA9iybs1uyrYS3RbyhRGoEV3IelQ4+vumxBxIXPo8B+L8PD45G7uPPw4Jo7Dj1IeURH1usXZwhs4IcszLl67hZeddgFKhaphMQa3UsLpvTdaawHzbpGZDwEzi/sE0fKx//nvHBka3eSsdVoHYnTX4JYxAi9CZBSzjZQ/vPlBjEnAOTA6hAAf4n6aOtYMG973jqsxymMJPXnpNo46Yzeq7wEuBJd6VPKQDorWfPTxJzmS5QyVYgQhzXLO3LyG+YNzPPXIHqrVMrl1RFrRyh0jyvAr3/MG1gwOMpO2+Nl/uou9jRbrRqqsG6ly9qphzl8zxjmjIwyYUqj/JQAxSjqDpkGLICC7HiO6O8fQm2ZSfdVKD9V7ZnofXz34GCaKEC9FT88wO5PjrCeJTPBAzvLSzdu4dP02QJhqTjNWHT05vl9cmqJLa7U2486V3x5F6rcLGpldyQA8gM3cj6GUmCgKqFTRXhW9PODlvVCrlvmbTz3I489OMzI2UNCpi7itQGtD1mzyMz/4CjZNDNNoN4lMb9RKpEPS6HXRFri5ruJHeINOPOU44fP79vOVw8eoVhJy5wHP6FCVVUmVO2+7F2MirHOFoSlMlvFz3309G0ZHyXzGT/3jXXzyqSPUhhJ2zLZw+4+iYsdALeb0sUFeunaC1592GleuWkWMwUuGE0FUwDQ6IcLie/OHHdBX9ZRHvHiMNhyYP8at+x9FIlOAQYI2MdNTOWnqiGNN7jzGW6478yK2r9kSzubpe5lTdV619aXUouoL6RxqQIwx7xaR31+cCEaL6/6DB/dcauLoJXmeSxS6GMUt1EVNurTfn8SGI1MN/vYzj1OtVBDrA8vKedBgjGFursm3X7mZN1y5jWbawhjdCZULAB3f53KX/Ly+xDPWmmPtlI/ufBYp3KUugvM5p63jydueotVylCsR1nniyDBfb/BTr76S7RvWA8KvffkR/v7xI0wMVfDeUY41EkUQK5wXHp9p8FB9jr/ct5srxsf4/q1n8voNG4nR5JJDnxHobgbgCd2GHl4v4jFaM5PV+eLeB0nxJBi8eOIoYnY6p9nMMUZjnZC7lOvP7h3+TXd+mT3NfZyzfRPPzDzPiybOfaEtYw/Rdmvb18ZxZUGjaEkwyWz2g0ODgyoyxneTmSIL72DYC2+/pxSX+MTnd7LnYIMk0ogH5QIipL2Q546JQcOPf/dlOJt34+dK+bF46XuAywFNgjExf/vULnbXm8QSGjHtLGfrxtXM7Zth77OTxKUYawXEMFtv8spztnD9xecBno8/8hy/fcdzjAzUsNbjPXgrSOaRtmBSoWINw5RwEvOlySl+aMedfNedt3DH1DFiVSIq4FdfGKwu8hanfF/eGrqAmbd86fmHmMnbREoH/kESMV/3zM2l3ajXarV52eZtXLj+TAD++eH7+IeHH2LD+jUY0RxoHKNhmwXsLC9IpURr80PLVgFFYuAOyaEaIm/K8xy1YCozuE/xhRF0u1WhP350Zp5//MJTVEolnHW9qgCFUZpmvcX3fdt5bF07SjvL+rC0lVQdCiNYHAI6IFMU8czMLJ96Zh/VKMZ5T547qtUyY5UaD9/1LJGJEAcaQyuzrB+o8sPXXYEGHjl0lF/8u3upWoOuZ5imQzccqulQbYfKLFhQmUfaDt3y1CQiiavcMjPNDTtu41eefoi2h6SglnVYR7p4jV56AJVWmjsOPM7z88eJdIT1gXzSbsPx481ueEvTlMtPO52Xbz0fgH99+mE+dt/dDI4OUynFIAorjt1z+14ofaxAyvXrROZWFRoEPczy1ltvNQDZwdZ1w8Mja0XEyXIYAYSD8T4kYs6TxCW+8JWn2be/QTnS4KSohEKt3k4tZ2wc4ntefT7tLEVr3fUmJ6tiOhDo0j/T/PVjzzGXBXfrvSLPHVtOW8OzD+5lbqbdzaJFFC7N+OHrLmd1bYCmzfjlv72X+qyjlAqqBbqp0A2FroOe8egpi5rOUPMOkwo6B9oCLUeNGKdj/p89T/G9D9zG7tY8JZV0jaDzvkUJTjxGRTw9s58Hjz5PEsc47woDjzlyaD7kE6JoZSlnj63mtee8GICnjh3gL3fcjSkl2DzHeR9yKaXZP3+U1gvzAgpwWptB5+I39EnchkO+5pprBMBn7ruSJJEoimTZ+rXzAyUMWBijaKUpn/nS00RRFGK+78U+jSJLM972uvMZH6iQ22K2X6nuPP8JDaEfE5Dg+ktxxINHjvOlvUepxkkolTLH+Nggpu159uH9RFFBMVOaeqPNq8/byrXbzwCEj932JPc8M8tItYx3Dl1ArKrAK5RVqEyj5xV6yqEnM6JZS5QKJleotqBTYVCXuHV2ijfvuIW7Z45SUiW8eLzqKZBopZnPm9y693FEa8SF95LEJQ4fbpDmDlCk1jIcl3n9hZdhCsf7r08+Rq4USWRo5Y7jM+1Q/gk0bJv980e6ANnKikkLQ3WAWcxbijLQB7WVjvs/dKjmvHuVtVaJiFErNg7CG3TeUy7F7HjkAE88NUU1iXE23GxRHkWIyWduHOT1V51JO2sHOLjvZYqXrsGc0Ag6/L4gD8HfPbqLlu3M+gUb2rJuFbvv34PLgjSgt0KWO8bKEf/52ksxxDy0/ygf/Ov7SFPP8akGMzMtpqYbzMw2aDQybC4o0SivEAdiFbQ06rgjOpoT130whLYgLc+AM+xNM952/1e5beoQJVUq3n94TRrFV/Y9wWQ6j1Ya6z3lcomZqZy5uRSNxlqwmeP68y9hqFTFupCkn7V2feg7GIMyEXsOzwRhC/Eoghdw3XnEkwta6QC1Kq31VXNzc6uUUl5EVAQ3a8C12zOX1wZq67z33pjlQfm+nldoTijFF295mjwVKpWQSBF3B/5ptVLeePUFjNQqzDeb6L5v2wFUBEF1Zr9PYATOCdXEcN+hSW7bc5RKpYRzDueFdeuGkXrK/meOEZdinBcirZmrN3jbdS9i09gYzjt27NzL9Ret5bS1o0VMhXo74/Bsi32TDfZMtpicyUBratUScdIpRQ00BZ1n6NSgxwoxCi9UEs2M9vzQg3dw82XXcNHQOJlklFTMk9MHuf/oHkqliNxZyqUImxmOHJ4uSkNoZW2uPfNszl2zAe99IXYBl28+nc8/8SiTzTZJZDg43eD4bIvhWgmNYiZrMNmaYk11VdGPkJNJPhXIoBkaHExeDvw9YKL77z9dA845Xl2r1igsQy/H71N9SFOSGI4eb3DPjv2UkygMZKrQvFaEzH/VcMJrXnomuc26WH8/oCh9cKLyAUFbiWqiVOgAfuLh3TRyGCn54qYJp60ZY9cdTyMWVAxKFO3Msm6owne8ZDvOtXEivPM1L+aHXpssg2Z5Up+zb6rBfc8e5fMP7eX2J48wMyMMDpaIKABxUagph8490biBchgKqZQ0x/H86MN38/eXv4pVSULb59yy70m8VuHfqtAh3btrltxCHEGa5ayrDfLacy9AJCihBbRPGEpqXLJxM599YidJFNFILfsn64wOVrDW4cVzYP4Ya6oTfZL33Wb5SihBQczWry0MAP3pT3/aFaXVKzrd9Q5/f0GzRxYCP6VSwv0P72f/gTpJrBEfhjdUIbDQarW58kUb2Lx2kDTNFrFhl0D8XeLocrQFL1CKIx47OsNtzx+lFkV4K+SpY83EEG6mxcHnJokjgy/yjLSd8taXnsu6wQFya4PAg3ekeSt8Zq3ur7M8IwLOnBjke6/Yxp+/+9V85uev54dfeQYqT5mfy9A+jGaKU1AXzFFL3PKYzCMpDPiIxxoNfuHRe1HK8OiRPeyrzxJrQ+5c1/VPTaVopfEebG65/oKLqMZlvLdF7ey63KfLN59BKTJ4gj7C4ePz5NYX4+eKQ41pUt8u8JK+PoTICvSZjuqGepnI+wOl/MYbb/RPPvnkBMhF3jm6t18WjzfLklzgjjt24S3QKftMYXsSpmVf9ZKtC5K8E5T+xRhWkawsTgxF0Nrwj488z2wajMS70IRaPzHC7of3hhq+kINrpzmnTwzy5pdsx7kcpfUCpNFoHWhgOnwqHW5dZh3tvE1mU85ZM8yvvvVl3Pwzr+XyrcNMTzfQToXRTAvSENRRS9wSTCb4tmdYYj598AAfefphHjt2kEgFSBcNkUrYt38WX1ygZjvjvLUbuHDDJry3aG2KiUJf0Ns8m8dWcdroGJlzJLFhvpUz22iDDgn5XN7iWGs2yOhJ0Yzqb1QsMYIuV31bu/1zm5VS4bCNyS8YGBwYEMT3j3j1Gm/SxbMFiGLD7FyTxx47TCWOIfMhoSsMIMscp60d4JJz14fbX7jqE+Ypqo824XvVRKj7DXun69zyzJEi8/fkmWNkeBA/n3H4ucmiERSMo91q851XnM1IpRoqj74f0EkoOwwbYSFOb3RAIFNraectLtk0wU0/fT0/9pptzM3WkdyjcoFcQQPMpCNJPToVVMsTW8M/PPMk+5uhy+mdY7haYfJoi9n5FAHa1mGA1110Yd+8ZIcpGw7S4zHKcNGGTbiCPeWAYzMNPNJVPDvSmFlEOVmcEMpy5WAURerF3TLQe31JtVrFaOO7Uz6qb767q3wRDidJNLt3H+fggQal2AQPUEzGagXtLOOS89ayarRGZjtgvyuIHSc2AukelAfv8S4QQz/72D6ONixxISrgrWfd6hH27zyIbfuusbeznNPGanz7pduwLqUnUCKL2rrSBbWWs8QgJlXMJ4jl/d95Fb/8XRczN1vH54LKBe00Mi/oKUfc9tBwVDPPloEKuXisLwZEdYkDB+bQaLwX5lttLt68hS2jE+Q+L/gV0tVJ6GX1wgXrN1JLQpNLa8PkXJu2tVjv8cCR5gweW5TMnX/lVxAf6739KDKX9qBgLRcZbRaQMmTxXFc3+w+Z6qOPHqTRyLqzDqooHJUHJZ7LL9jQNxpefIo/hbKvIxgRwkFsFNPNlM89uo9E6UAssaH1nFjPkaePYkxIQpVoWq2MN1x2FuO1QWz39q+gEN/xAGplcqTRIVtPbZMfve4Sfv47L6Y+Mx86gbmgcoVMO8ychaZlrdEMxorMeaz3DBS3v9mwKK1JradsYl59/vauCqmXPkJJVx0tSAufNjzKhqFhrA+sqrl2TiMNwJB4YbpVZy5rotELkuuFCqcLQkEnDFzY3wvYVpAMdP9snVrORSuFF8VjjxwI7B7nQwJYEDmd8wzXIrafsZo8t11WTRdALm62OgkSKCoIRCVJzL8+eZDnjs1TUgFMcZln7aohjj17lKyRFdQHIcss6wYrvOmKbTifskh2eHlJ4D4waplWV9+wqSazTX7q2y7ne646g5mZBtqH3gGpR2YskRU2DJYQFK6YSo6jhD0H5oL0lVe005wXnbaRzSPjWJ93EzjpYBqdNrKEjmeiE85ctQrrPdpoUuept3KsCM5DI8843qpTJAa9TmTXEyzu43cN4MwdsiPWex55ZFSETQVStKCh3d/H7rBxjNHMN1J2PztJHKYsQEKrWKFIU8fGtYNsWD1Alruubr/q7ymI7/UVZOXbp7WibYVP3f98mP1zDsk9pThiMEk48sQRImUQ51FK0Wy0ee2Lt7J+ZJg0s6emDS4d2Rjfh3PIEs5shwjrfMoH3voyzlpVpdnIUNZBLri6Z1g0qwZinBOsF6qVEvW649h0G9Fh9sGI4prtZy2YEVJ9fGff5wQ6H6dPrC5eRIC955t54Dt6oe0sx5pzJ5gfd8vlAXhkw7mcu07n1WiDVnrMLxsPiwvS9w3iyHD8WIOjR+rERiPWorSEElCEPLectWWcWiXBFXxAlrypol3qfdEXWFoieBEqpZgHnj/GI7snqZrQZ8gzx9joIPOH5mhMtwK4lHts5hgqGb7jpefgvTt54indyU26f62QiVcLMgVZQOrMnWOsUuG/v+VSsnoDch+8YA6rajHhZYbbPFCpsv9gveD1QSvNOGNijHPXrcVJjla99NQX+kVIYQR9qMlpI6NUk1JBUVe02hZrhdyFPCN4AFnCm+o18jrJoae3QcEMVIg2aYuclpTiGFlc7C20gpA5QxQZjh6ZY34uDROw3nf9hi4iyJmbxpYdFZclaoA96TZkyV9AKc1nd+wmswojQO4xwPBQhUNPHOyybYxSNOfbXLltPds2riIN3cz+KL+yeIGEm9XxcF3N4a7PUoshVTLb5vqLz+Bl56yiPtsEFwZTxsdK5E6wXhFFEUYMB480UNrgRZFllstP30ykokD+7DMs3V1bIwUDqQfeTdQGGSlVsD5wKtuZI8sduQvo61SrgRW3wKCWk8CWHsbQuZlbtOTutDhOMFr7lSdFVJfparTiyKFZ8rZFi+Cd7zKFxHtirTht3UhPEUukH/OBBfrPuqvc1Z93iEApiXj+6Bx37DxKNQlNH5c7hoZq+HrK7IEZIq3AecQrYuBNL9++DNLYl9SeyBAWP64umLL0SXgRIjQ/8JoLEOdwmVApK8oDhsyCLaaimvOW+YbFo2jlnkqc8KItGwG7aH6ob7ilT9DeA0481ajEWK2G86HBlVlPan1BXoW5tE3LZQX5ZLllZ/2/83QycefUJi3COmNM4Nuv9JC6LNfwm8MHZ8LFF0E5KSDMjvKHYc1YDedcb0q410BkaYu/YwSuwADAO09sDF98YC+TsxmJhE4dDsbGBpl69ghiiyELEVqtlAu3TnDleaeR5lm4CYqFHkBYkUkrIss8Mr+Agdw3517oAmW88sItbNs4xvxcysCwRiKNE7ACA6WEo8dbZC4IRzaznI1jI2wcHcYVPP6OkallhD9UMQNhCzbWmoHBMMeoFFYgtx7nBCeKZm5p5Fkvp5dlQt0CpCA0nIwx67RSrOq4jtBaXAa5U/3tWcWxI3N9GWcxuSNhLqBaNgwPhkZNd15k0WTvAruUjhGobjIWGc1sI+VfduwliYo+QxbgVOOFqT3HiePAAFaiyLOMN1x1NuU4CQJN/TQzpRZE8gXQtnSgDrUEN+mFpb4DUr1dg5n1DCVVrj5vPc1Gg4HxUhCzF0AZKnHC0ckWogweQzv3bF+/GqMCgaUjiN25VMt2X/vyr4naYPCmRSGVWcGKwntFah2NLF3GfytOuBIFv0oLMtEd6JTOFM5SOlZH3Ml7Yfp4I7QeOhBwYQBYT60UU6kkOLfQ/SxhAalFTJ/iLnjvqJQMd+48yLN7ZylrDV7wuWd4bID6vuNk84FCpYEstWwYrfDKS08nt+mCsepFs1qLjEBg6SznolvjAVlYDS3YTSRcdtYaIjIqIxVyp8hFYSKDtzA1mxVt4JDPbFu3uo/UXqwSkkChkxWMoPMxXKkuSOoy5wP9wrPUABbEWrU0FPjuWM+4FpFKP9rXNQJZeoBKKaz1zM22Qn0fwPuu0/LOUylFlJKoyK/UAqi1b8CvWxn0K8N3ZnCc93z2zucKbqEHGyRjauWYqV1HA2mioJy1mhmvuux0Vo8OkuVu5YaoWnLxT8qlkU4pLL6XpxTPKoyDO05fN8zoaIyuRDgnZA6iOGKulTPfciitsE4YiBM2Twz3LbzoZ+VFXRaVWtZ2hYFSKbCpitdtnRQDMELuhEaW9Xmuk9z8Ah31qIpGqeGFF74wgj44sr817Lyn1Ux7N0MV0mjFXy0nJpSH/dl/YUyLZ0nVorLDi1AuxzyxZ5p7dx6hHEdB8DlzDA7VyKbmaR+fxygFucdZz1A54o1Xn1uEHMWpyGGoRbIrJ/sHPcDId2OzKnYKrR6usfG0EWxx0JmHUiliei6lnQfzT60wPlBl1WAVL47lpqyCN+gZQfdOBGSIShyjlepWB9ZD7oTcheHRdm77ksnFJq5WCgxDeoGeaz/kK2rZTFicx2Y2ZNa+s5pNuuhebEJ3bWHuv3g4YtGgkfRIplEU8cU7d9OYt4Fb4gRxjoGBCjO7j4W4WABIrfk2l5+7jnNPX02a5gtkVU4MNfdQPzklI1A9VKAPvPIiDFQTNpw2XJR/BVMqjqjP5fiCQ5Baz+qhGrUokFWWja9okKhwvrJEAic2xah44VkLx1gYAmTOrTC5s0LM7fofpZZkir3sWC3codfp3bsiQfIuHHxB/w5umWXQBFXs21kuL+gl2HGkOT7b4pb79gZRJhtGycuVBN/OmDs0jdYm9BsQxOZ8+yvOxmjTa3eIhM6knLo80smNoA/FxHd5eFKMpg1N1MisRYq9R7HWzNaz8Bh8YE9NDFZ7FY/q69qphaWowhTfRxb4oODddJc74X1hcAK5D+DT0qxfLfJyizMxCVuQTlQjd1+M+IWz+s4XXrGD7YecINDCpa+eXWhvIsszA7wXKuWY2x/cx/MH6pSMAidI7hkcGqC+fxLXyotmk5C2LKevH+JlF2+lnQZQqn/zyKm0n2VJYsjJtTml11IO/D+BcqnLh+0AYnP1PCiiiuCdMFotL6qsQvhcTvKko3cii7xzuGPhMjmvsI7w2YfguGWTCFmxNtAiak6dZFRDpBiM9C7IsUcK8a5IAsOnFMlgnjqcK5o9Isvu9lzOCLQKte3nbnk6sG+sxztPFIdtIPX9k0RKgXVoUbRbGa+7ehsjgxXy3C3eA90NUazgDZZzeqc2dau6mgVaPG1vqTuHkpADRNogVtFoBsavd8EjjVXLC5MQ1cEo7PKPXjoVQuhQWOe6kve+wPSspwg70mUTd9jTsuw+1YUgseDrGqTV25F3orUVRSvYKCqViMAeCp/4wOkzKLK2DQfSme1bzgiKZKaDO3gvlEsxO58+yo6HD1GJDRS1f22wSjbTIJ9PQ43gPTa1rBoq8+3Xbie3eYCkpf+GLrrZp+IJOjAwp0azFwnNqqlWyrFGu+gTBNp6ljraLR/2lLrAkF49VCvAJRZeAAWiVlhOKT3Zu2ZuyZ10ATXnQ/LX6QomJurqJnRyIb/sG1/Q22hpkONhCsefwu6SQFMeHK4g1nX2mRQTwEH3rtXISNs2uORuBr2IpdIBX6RH+Y4iw2e/+CSteh7EmW0Qk6hVK8ztmwyDV4VHbMw1ueKi9WzduIp2apeKJ8oySN+JeAiLyhORkxeJQlgxs3emwUwrBw/WegZKMfW5nCzzaDTOCSWtWTtcLZRL6YGxarkd00v64kE+L02Dq5eCli+hEnAhDaOSJEtTQKHPCNRC2lX4mNJKOOq965IwVnqOne6a1pqxiWqYGhYpXoFDEfh2rUZGvZ52a1b6oNXlPIH4MFx66Mgst351F7UkhtzhM0u5Usa3MlrHZwN3r7jNRnmuf9U5iNgTyMosdHodI1AnkV7u7g1d1AVdutMolG6PHpsh86Hbl+WhB3DsWLsbY6yFsWqJtSOFTtIS9U/pA6xlhT6FYrbV6rp2j8KKJveKzIMXzUCcLEkqVfFfv7Tm7Hwc1c75w87a8OPVijS9BV9btWYY8UHpS4kEf4QiUtBuWqaON4LWr/S7TLUEau4kNuVyiVtue44jh+YpRSH5U7mnUi0zd+AYZCHf0CjarZztZ01w+YtPI8szdh+YJLd+eQ3dRYRm6a8QZKXwrpbBMJbe/khD6ix37Z/EGBOURwpR6EOH68UIXEDstq4eZqRcxnq/UEG1P/Iq+lq2Sz+ONZp4dFhPIaEfYB1kDrSKGCqVuws4Fy7sUIs8QX9JL4e1UrI/yzK8c7qzZXvlEjKUhWvWjaB0Ef/FIzYvxrk1eWo5eGgGY9QyD2+pERijaTQzPvf5JyhFQTFSckcUxygvzB8+Ht6Uc2gRbJrx+uvOZ6BWYabe5tNf3lmISQqnsBB84V5hOVE4kBXLRBEhjiIeOjzF40fnKJuYNPcMDyTMz2VMHW8GUUrCxpAXb16NomAIL0fhlB4qJqrfCDoKKZ5D9QaiNF4UHoP1CieQ+SAeOVQuddViVR/dfgHrutPp7EDBRu3VIsnedju10g+QLddS7SCBzrN2wyhJSXXmzZAO985bvHPs3j15gkaE6uYE3nuq1YT7djzP4zsPU0miAPxYT7VaJp2cxTfb4eF4IW/nrBmv8KqrzwY0D+48xCNPHKFUipY83CUnrxZSwMT7k1LS6EuO+/sHnfnGT+7cQ+pC4uW9Z2K0xqFdM/h2CMzOQznWXHb6Gijo3rp/HrJAxLzqywkUhREETFBrRdvlHJoPvAIrCosKBlBsKhkqJQzGcVdboW/IeiHburO/QSntcfjc7dFRFB1w3k0vjc9LI0bQ3LOsWT/M4EgZZ4OAs8/SrkRrZAzPPHOUNLWstEeiv/MnInz604/ibQEsWU+kNKU4Zv7IcTQKyUOO0Wi0ufqqM9i4YQwR4V9u24V1uqPecwLe3yIjOMUKQQpeX3+C7LynFBvuPnCMLz57mFoUk2WeajmmhOHg8zNExuCdp93KOX18iHPWjeF83t0rqFg+3/LdE5JQGRTraiabTY7MNzFFWLHoovxTZLkwUalhlFmwEJvlSW0giFERzueNOK7s0du3b59C/L7lsICFjZpOM8gxNjHIuvVj2Dy8QLFZ+BRIEsOBfbNMTzcCXrDitKpQqUQ88cQh7rrjOWqlGG8tYi2lahXbTMnnG0H1QwTJHSUjXP+a81Eonj8wxV337mGoWinaq4s6fIsYjl0bUQtVbk5oBJ1wUEwp+0Lytek8//srj5HaUP7mmWPDmmGO7pqlVbdddnS70eY152+kHCWBoVxgyAuEppY1gqJKV2Hka8/0LHNpjpaQA1hfVAA+oIAbhod6pNBlKnq9mI0XvnIIOKiLUeGngsTb8qtG+kET5zzVgTJnnLMOa7Mg/WozfNYKixNixcx0mz17Zohjgzi3gpyskMQxn/6nh5mbaYX0xnmUeCqVhPmjU92tOEYJjfkWF5y3lvPPXQd4vnzbMxyfbBLr8K58n4rJiqNI0hNV7wlAFiXwiSKCCkMPYb9Aid+7bSc79kxRNYY0swzWEqomZu8TxylFQfUrTx0T1ZjrX7wF7/Oi4gl5TKdbu6wRqD7sqoDUnz42Rd4RgxdF7gok0AdvcvrYcFfHFIm65TWL9Ez1QvrTs0qprDMY8oi1Du/8SZMoim1b571oE14cohwilrw1j45jtA5u6bFHDxFFcUGQdEuIJkkpZv+BWb78+Z0MlEq43OJzS5IkuDSjNTMTuO6+EHfMM974+ouoVmKmZub5/JefoBwbnHV9+8jVMuITsmxZIP2G3Sn5VuwhCNYF5fO/f3QXf3LnMwyVytjck+eWjetG2P3wEdL54OYNhvp8xpsuO4PTxkbIrEMr3WVE604vQa2Uf/TGPT2Wx48cR2uDL9x+7hTiFKmFalRi6+hQr83c0f0Q02cEfRTTnvDPo925gFjrHc1GA5tlJ9QBlyIByrOccy/cRKUWYfOAxGWNeeI4QWlNHEfcf/8eWq28iFtqASLonadaLvO5zzzMkQN1SkmE8oJ3lqRSYv74NGJt0X4V2q2cM7ZO8IqrzwI8X73jGZ558gjlKMTahbDu4kpDLU8KWGZCWZZpJIUq1zNQrvD5J/bx/k89QGLi0I9oW9asHaV+tMXBJyaJjQEbRuM2jlZ4x3UX4FwYCOnI2krR0dN9TKPlJHNEwoj73tk5njo+Q6RNoIL5IGAlIrStY+1glTW1Ks73zwMXikXeFFDygretCg+8o2sApap+pD432/TitRSY6Io5vNakqWXzGatZt3GYrJ2hjcG3M7A5UblCKdY89cQRnnvuaAgDIoFsXTzkONYcP17n0598kGo5wVkLXsJWDe9oTB8PGsReMCK051O+/fUXsWbVEM1Wzqc/+3BgCdk8wGBL2k7q5GieX8JL69O6D0bgnCfSilqpzN/c+xT/9e/uQYkhVoq8lTM8XGUwKrHrzueDYJQLWEVzPuU9334R60aGyPqocQtyKxGU+K4haFGLuqMCRNy3/wgzzQwjCu8hK9y/R9HKLNsnRohUFPIg+mY5OyrnYvon8kQrZaxPXWLUA12FkDPPfNFR8fJokaP6jgbQSomRtY6RsRrnX7KJdpZhilXq84cPUKpV0Upo1HNuv30X5XIceHoFZp3nGbVqhb/5i7t4/rlJSkmYLfTWUq5Vac/VkSwvxn9dMQdQ4ttedwFgeGznIR68fy+1coLP8wKFXN7ZL6B+nbzJ1/031oc1sLVyibnU8gufuJv3feJ+lAor6m3bUhsosXZsmN137IJWaIkb75mZa/Gaizbw1pdvJ81TVtDa6JZkYThGejlB8SaMCmqnd+46ELQHveC9IssDOdY5hRHFJRtWLZCrZRGIFYwghFK8iFEJXtyzUN4tIkrff/8fdzYbf9U7hy8ChxQPYaVQICK87JXnYcL+dnSkaU4fZ/7YIcojo5RLms999hEOHpxnbLRWvBhhfGyAf/3XZ/irj36VWiXqto9NFKGNoTkzF3h9Pqxlna83uObabWzZGpQwvvAvD5M2MzQObI7P86Cq6aWrzuWl9+swQ+cX/Fn304dWrXOBYi0IpSRioFrBivDxu57mrb/1ef7ujl0MlspEAnmaU6mVWTc+yv67nyc73g5SLt7TamSsrUX80tuuQHl3Ck0o6c5GKOltO0eExEQ8MznNzsNTlEyE80JmA7SMF9LMsa5a5sK1YwgdKpwsm/kqpVGhFR+6CaLuLHQCTXTJJe/y8CN4rb7YmJ//rzqKdBQneO9R3gchY7VEb4ZWK+OyK7excfMEk0eaRIlCG8XUc8+walvExGkbmDo6ya/9r8/xoz9+LevWDeIcfPITT/Bbv/YpbJaTJHGAlFFUB4Zozc3jshwTFRtAHcSR5w1vfjFawd69k3z5848xUC2HHKHoQ5QSg1ZRb7fQMhVAd8dBH80K1dHkV92W6/PH5rht50H+6b7dPLp/hrgUM1IJ8ndOPEMTA4wOVNl31/OkMy3ixIDzWAuSZ/zau69j48QArXaKMeYkPUW1MDWWvlW7aL741F4amTBcCqBPOw9SOdpAK8257Kw1jJerZK6gwndrQLVCBzNkIjoyn6dPKdQDpCl3z7i5Y9XBwVVxVDydDuunfyty8Rqz3LF67TgvuXobn/jzOxguVcPGIq2ZfPop3OaMsTWr2f18k5/96U+xYcMwjbkWTzy6G7EpcRx0cj2OuJSAgvmZ6YJ5bDFGUZ9r8tJXnM6FLz4NQfjMP+zgyL4ZJtaPh5l5pcjaOc88ezhUA1p3S7YFXG7V998+3qDzwmyzzaHj8+w+PMvj+6Z58uAcx5uWJIkZqVRwCFnqMIlifGKQKBP237ELnzpMbFCFNE670eTX3/tKXnH+JhrtViGDK4RSXq3oSelhPwEAKpK/mXaD2549SMnEeC/kaLIsJI+CwnjhlWduCHPAfYPcqksy0QvYwSIixhiT2WYjiapf6WRCkVJKbrrpJnPFFVfM3X/fHbco8d8NyiE+UioINio6RqAXwcKO615/MX//17cVyh4OlCbShpk9u5k7fIikWsY5z4Fn8jA5FBt0ZLqqX6AoVRPmpo4iPg86QRJaz0LODd9/JZVKxNGjM9z8t3dSLsWIzREUpdjw7JNHecfb/xDRBmVMZ8EOYhQSGdAmZOHGhPegFaIVGIXXmsx72l5wShEnMaVqmeFSglfgMguRYmiwTCWJae6Z5tjeKXQUYSKN9h7nFa20za/82NV819Xn0Wg3F8rgdoxAqROi4x3vHfCRiM8/9Sx7pxsMVUo4EbJc461gtNBMHWeO1rjktNXkEpJMH3RCAulc9eYOeoWP90YlRiS7Syl1uLNiVgOsWrVKFaIIn2y1WsraXNE3ZhRogQvra60VzWabF192JtvO30Bjvok2Ubd5EUUGbE46O4dtNohwJCbEdnGhu+e9UB4o0W7WSefrxSp2ITaKxnybK152FlddfQ6C8C+fuZ9nnjxCkgRwSTmHpBmSO7xViAVffDor+FzhM4XLQ9x0ueBycFbhrcZbDU5RMgkjlQrjtTK12KBzi01zKKZ7R2pVotmUqQf3MbdrMqh4eY/2QquR4fI2v/lT1/K9113YPfzlRLUQf9KcwCNEWjGbtfn7B58jKSBl5xVpuxDSEk27bXnVORuoxSVy16OZu/5xVu1AeToN5A4ooLX6ZL9KbEco0oVvkHx+empm0trcKKWku49Hilq+aP92bq61jtpAmTd89xWkaXvBQiXvHQofLl1AmwpKdDGmKI6kWsJbS2u2HoQYvC06jILWnh/8L6+iUo2Zmprnr/70NqqlCt7meOvwuQXn0QUvQYlHeYvyQfxRe492DuMt2oVfa5ejrEU5h3Lhv74AoMQKEWHT50BiqHmPHJ1j9tH9TD95GN/Kg/cSIVIwPT3P+HDERz7wBr7j6u00W80lGb8scvPLKqT0DyV5ITIJn3l0N7sn65RUkOdNU7CpBwc280yUIl5//hZElpJhiiyv8EBhC7qIiDYqymyzGRv5VCcCdg1AKSUiYi699NJZ5/ynxbs+fmEfQUI61UEwBKM1jUaLb/uOK9h61hrazXZvnKrLyQtDFZoA83aGQZNSBC6nPVsvFiCEf6O1MDU1x+veeBFXXHU2Gs2nbr6fpx47QrWW4K3H5znibCgBfYCQtQu3UjmPcg7tPcYLxgmR9xgRtAQ3GYkQiSIRKKMoO0gywdRz/NE5ms8dY/bJQ9Sfn8Q107Cyrdgalqee6el5rnvpZv7uQ2/lpRdupN5o9mhp6gSt6I4nXbT7QBW9kdhojszP83f3PU05DrHfiabdCKwrLZ75ZptXb1vPlpERct+bCO7v+PkOcbXzNeWdVokg/otKDRwq1MJlgVz8zTffHLJCrT86Mzv9Tm1iXUqC/Gl/K00owGoVdO3yzLFm7Rhvftsr+K0b/55SJQA7uhgY7YDvIjog9oog6ZKnZO0MVaxGc4X4RNbOGV9V5t0/+Vq0EvbsPc5Hf/dfGRocwvsCCbNF21M50L47qRNatcVWZ6W7MR+lEK2DdJnubn3uzjpKV+C5OEOjUEZjTJhuVl7IvKdRb7FpwxC/9LareOv1F+Gdpd5sYyJNR19BLYfvdjar9NwjvZqvtyvBmJiP3fUQB2daDFdLeDxpC3zbYYzC5TCg4XtfcmZBC+0NsKlF8had1nfI43xQIVLqT1hpZ9ANN9zgRET942c+f1e9Pv+g87lSOmjKL2hgSm9Nq0hw8Y1Gkzd/71WcdvoY7Xa7K3bo+2f/C+hNeYdtt8lb7fCiC1KpURpE0WzM83M3voWNm0Zw3vGb/+OfOHqwQZLEoekjGusDGua8xjuNt+Hh+Bxc7nGZx2cOl1p8anFpjm9nuGaGb6b4ZhvXaOOaGa6dIalFOSEKsDiR0hgVkL1GI+X48VlGBjTvfedLuOn33sb3ffuLaacpaXezaeeQC3b08rM2vVG4zqkXFue9p5zE3LvnMP/wwG4GSklQQbWKtO66svvz9TavPXcD29dOkNusN5O5TOO3b37AGx2bVt54rhTVvlCUgn7ZpVG33nqrufHGG30cx7+XpqnK8qyIMbLCvEAhC5dmrFk7yvf+4CtpNOaJjOqOV3sXIFXvHM5a8swWTadiykWKOTsPs1Nz/LcPvIXrv+MSSnHMX/3ZbXzuHx5ifGwIJeFw4sgQxSbo/HU+I4Mxvc+o+HpsNJFWxUp33f260ab7Z7HWQRpOwsBLnjrm6ynTU/Pkecp554zxCz91LTf9wffzk+94OaMDCfVmsyuGvYRuVxyoyMmZSR1JPKMV81nOh7/4MF6KRBloz3kk9WivyDNhKFa885pzQy7VJ+CmVxKGC0bptYrAy0eUUlkAGVfYGXTNNdc4EVF33HHHTdZN/kqSlNYk1cQ773R3n0+/ZnAxL6CNpj7X4C3f/0o+fdOd7H78CNVqGSeFnGtfE1zRW56ktUYbTbPRxrqcX/hfb+UH3nUdWZpy8yfv5hfe+xeUohrHjk0tYLVK3+Cr0Fsq2b0EutDe6ShUdcCeohnT1bPr/N5odKypVBMmVg9wxhkbuPhFp3HFZVvYfvY6KqUSWZ5RbwRJGqP10ieuFvWavO8yh1Ark1S895SSMv/n8/fzxKFZhqslrDhcE/J6gLkjYG6+xY9823bOXjNBO28VHjP8DL2CspGIiFHatLP5OZerPwP4wAc+4FfcGqaUkmJbeP3ee2//HWfz/5nb3BttVl6FWvzU3DmGR8r8+M+/hfd+/4eBMh11YN8Zilaqu1/X+9Dla7frbDpznP924/fw6usvoV5vkOee5587xA//2HUF61cVOYVe1NDrBKe+ZVN9PS/VAUL0IqGCQpdPa02lWmZkrMaaNcOs3zDG+rXDjI8NhHEzb2m1MuayPHiWqKjv/cpK2guzfumJZCwzsGOtp1Yp8dlHd/Pxe55lsBJcPx7SaYcq1uA0W46zVg3wQ9ddiHXZAk3lzvymVrqPX9g9JBdFpSjN2x8dHBw5utwiabXC2lgeeuihYWubT69bt25ioDYoriCNLjeA2LED7y0jY0O8/71/wic/djtj48NY67p/oZWmtFrt0F4drHLmto28+k2X8KbvuYrx8Rrz9RYmigHF4FAVjQrbupTqU9Iwp7L1vi8V0suseV8ehXHFeps8d10D74hf0TFepU6ueNonJEFng/iinpBzQq0U8+ihad7zsVuwEjAspRXplJDXHdqE3zeaTX77PVfz6hedSStvdRXFF0yZ9SWVrhB81iixzjZ9ordVqR4Kd1z5E66O7fMCM/fee/tvWZv/T+us0/1E/0UHUDwflDI0Gy1+7Oe/ix13PMWxg/OUyjG5dZTLhhdfcS7bLtzK6WevY9t5Gzlr+0aMLjM7N8ncXDOAR+JBaWZn6guAKNWT8yh0ddWyUvYChfK46g5iLq8C0ffC6RQFCqVMwWVUSwUmFt9oYUUefy/qyULcV3Vk5g0H55r84sfvpJX6sLBKIJ/1ZDM5WmmM0kzPNrnhmq28+kVnBNe/jACGqD5vo1Wxr0tcFFWiNJv+yIAaO7jSGvkVl0d/4AMfUG972+sG5mbdE2vWrlk3ODQs3jndSd7UMnomqmioDI/W+MoXHuZn/tPvUK3WugDQ0EiVs88/nfNfdDprNo5QHUgYGCpz4cVn4L0LCaFavIp9eU6XUhq1wgJFtUgSVqn+qfuVb65WKy5UXUa0QZ/KVPkCcW3VUT6PNHOZ48c+9hV2HpxloBTjcPhUSA8V6ifGkGaOTasS/up938FQOcaJ6+4kXs6PKen2OkShxFo7Z0ucM8DA0eVu/wnXxxdewO645/YfGp0Y/UhtYMiVSiXji9JlMfyg+vjo1jpGJ4b40Pv+mo/+n39mYvUY1lq8hUYjo505dKyISxrnHe98z+v42Ru/h7m5+W7t2uPE6xXYHD0Fz5XQF7WAz+hRy0gyLT5Z3ZXIVScMLiG3eyFGECj15djQcp6f/MvbuWf3MYarAevHCu2DbchDt09QeJvykV94HZdv20A7D6tvVwpk3VCgFTa3rlwaNI3W1M8NVMd/vXOWp7w+vvNnN910k4bvZsvW2+9eu3btpQODQ068GLW4/EH6um69JCyKIt77/R/i3tueYWRsuEsjdxJmYikOsD7b5B0/eh0/874baDQaOCsYo05y26RnJIURqBXm2lSfRciJ3nZ347ec9JafyAhkIUOtu1W9WoqZTS0/+1d3cPeuSYaqSZCARZEdbCPtICmjtWJ6ts4v/uAV/OfrL6GVNom6rWW1HLOtn23rjYlVO20+U6uMXARkYcxheQlIfbJhmhtuUE4n8Y/PzsxKs9EsYGPPckLCnbqegh4F8MHfeTdbz1pDq9EmigzOWxCLcmFHrnhhZHSIP//9L/NL7/1TIh1TKkWFyJTq6eAvv19ugXbB4qkmtaQfrpZhxy0WxJS+CV5/4qsiS5XV+rvP/Yc/WClxcKbJe/74X7nnmWMMlxJc7lAOsoMtpGGLpEwxPTXPW199Nv/5+ktop61AvRff+1nLst2Cb7PehUCq1HuVUu3C9cvJZTJW1tI1Sil3zz23/c7atWt+rFIdsFrrqJPdqv68p7srL8RT5zy1wQrPPnGAH73hN2g2HXFiCinXAsnDoIwmMoapqVleft15/MpvvZOxVQPMzRaJIb4vJ1An9ATd0lQWckPUgh68nNLbV2rlMLT4liu1VKNPir3Kg5Uy9+8+yi/81e0cnGkzWEmwRaKaH24j8xalFVFkmJlrctUla/i9n38DugDTFkIJBZbSr3zWWadrnS0ntWiuPvU3w0MTb1sp8XuhBqAA9eSTd9QaDR5ZtWr15oHBIfHe605dr1bgNysV8IGR0QHu/PKj/Mw7P4wxZaLIdMEQ58EXJI44jpmrtzj97NW87zfexsWXn8nMzDxIyNJPnBx2+gM9LZ2OVtKy0+PqVI2gMOmVco0FRtADApyEJdClJOETdz3Db/7j/aRWApW9WEJtj7TxDQsFWlmvtznvrGE+8sE3M1SJyZxd0OxRC6A43esEqt4QcG6z4+Ki8wcGBiaL5+VPtlf2ZJuo5eabb1bbt19VN8a8c36+rlqtptfGSHfrhlpOpLij+2OYmZrnZdddyAd/513keasgGZmC/Aim2BVkrWV4uMb+PdP86Pf/Ln/+B1+gWikFYqn1vV2Dy+fA3W5llw+/ghS5WkDKP8lQqdBlNJ9kjoyOzoIXz2C1RDP3vP9v7uLGv7kb7xUlY3AeVA75vgZ+NuxSilHMz7Y4c2OF3/nF1zNSS8isXdTp65p5n7x0Dw6zNvdxHOs8TX9kcHBwxayfZVaKnvTj5ptvlltuuSW68sqX73rnf3pbUqmUr9bauCgqitfu0gXVy4765rB0FODe8y8+g01b1nLLP98HaGJj8CJdzoDQ2RFgENF85YuP8NTO/Zx74WbWnzZOloW8QenlPIHqbSDrqpHp7pfVCpy8xWPhJ1LYU4v1Dlk6P1CKDJVKidt2HuTn/vSrfHXnIQYrpeLSamg57IEGtC1KBQpdfa7F6Ztq/OEH38SGiQHaabaET6iWKf4VgtKaPLe2Wh6MZmYm/2hsdN1vikh0Mtd/yiGgPxTceuut5pprrnH333/7LatWrb66Wht0WmvTVbRSupsHLEnHVcAIRscGufWz9/PLP/7H2FxTqZSxha5waDQG6pbSGhPF1OfbjE7U+IF3vZLv/J4rqQ2WmK83QxPFmAU0taVl4iKsQBZqHoha/AcnfxwhL9ALEl/vw3bySiVhz9E6H/3co3z6nudBGyolE+K9Vshchj3aDNJeGkykmZ1pct62MX73g29i/apBmu20AHvkpLqHOiirujhOTGO+8dDQ0NQVcJYF/IkSv6/JAAoj0IA89NBd64H7h0dG1wwNj3oW7RlcWiZ28cowUzA6yAN3PMkvvecPOH6sxeDQANbanrizMqBj0Jooism9p9lMOef8tbztB6/lVa+9kFIlotFo4a2E7ZpqqdEpOhCuWQIS9XuqXk4gpxIVu8TdoGpuKJUSjs22+MRXnuLjtzzNsbmUwYFyd8xcObCTDfxMO0DLWqG1Zmq6zssu38CHfvmNjA6WaKd56H2oHuoohftSy2hLiuDFe7yXeWezy4aHVz/d4fpxympHL/DjpptuMjfccIO7556vvKJarX55cGhYDQ4Oae97C8e6RrBkVkF6ZdFQjf27DvOBn/gIj9y/l5GxoUJ4qvM3NZgEdBQeWKxptlOyPOdFl27lhrddxVXXnMvQSIW0nZKmQadPa7XIGHwX4l0MEC3JAtSKUipd0oaIYLSiUomJoohDk/N87u5dfPK2Xew6XKdWSYij0ABTWiPNHHd0Ht+2qEgXzCHFXL3BW954Hr/03uuIFbTzIHejVC84dXYm94Q3Fwl85NZFURTV5+bfuGrVuk+fStb/dRtAP0p4zz1fecfw8MifVWs1WxsYNN65PiMIU7X9ttiFZnXwBNVaibRl+dAv/gX/9PE7GRgaJirm/bpuWkeoKEZMmDvAaBrNHERx9rnruO51F3L1K89l89ZVRFFYWZNltrvaNsDjncaOLmJnLwQsLhWlw2IqNPk64S0ymiSJSBJDM7U8vnuSL9y9i1sfOMChqZRSOSGJAzNIdCFlO9XEz7W7rWljNM1mhjGen/wvV/GO77qcdpoW+4D6vGbR4lX9Iwx9y7SL+cy8Vq3GU8enf2piYu1vFXHfvtCz/JoMYJER/PL4+PgHS+WqrdVqUUcLv4esqUXYfEdrN9DKoziiUinziT/9Ar/3a39PuwmDw7UwMdRhFCkFUYyKYtCBVo42tFNLlmWMjJa56JItvOwV23nxpVvZcNoYlUoJ8b7o7tnCu8hCAVa1UFGr+5o1REYRxybMKyqYb6TsOjDDvY8d4KsP7OPxXVO0MqFaLQeFkqJWFedxcy3cdCNsMjOB86BQzMw2OOuMUd73317LS160hflWo7sudqmYYw9nYRHekGZpPlCtxVPHp/73xMS6n/laD//rMoB+I7jvvtt/a2xs7L3lSjWvVCqx836RskjACnogjOoNwRQjXcOjgzz50G4+fOPfcd/tz1AbrBEV499dtS5l0FECSRzmAIpb7ZyjleYIMLpqkDPOWs328zZy1tlr2bx1FWvXDDEwUCZJApNIr1DTSyFbk2aW2XqbA4dneW7PcR5/dpInnz/O3iMN5tuOKIooleJCByi4eiXgG23cbAufBj0AZcLuwVbb4l3Om990Pj/1X17J2FA5cAk7dDJRrKTV2fVihUGkaZpXa9V4enrmY6vG171DRMwLSfq+oQYggrr11lvMtddea3fsuP0Px8fHfyQplfNKpRr7RRo8qsfQWEKUDAKgjupABbGem//sS3zsd/+Z48caDA0PhljaFxbQGuIYogQxYfDDFDfNOqGdu6DIoaEykDA6XmPNmhFWrxlidGyAoaEKlWoJExVKXrmn2cqZb7SZnmtz9HiDo8ebTM2ltFKHaENcSihV4rALoO+9SG7xzRRXb4Wtolqhi9eS5476fItt21bx3h+9hutevo00S8mLXocsq8LRj1z1EkGjFWma5YMDA/Hx48c/vmpi/fd8vYf/dRtApzy8+eab9Q033ODuv//2PxoeHnlXuVKz1Wo1cs73nbms3LnrW0ahVAgBu586wEd/61N86dMP4K1hYLAaVigV8q9S1MAqiiApoeIklI8dEkfROXNdbX2P6+sqCDpo3BcQsqjgGXRs0HGMiQ1RHGEiE6aJlEKKslJEkDQPxNJWFtbWaVW4e4MTaDTajI2XeesNl/D277mc0aEyc/WA6+sOM3nZ2n4ZJXkFaZbagVotmp2b+7vxkTVv744AfB2H/w0xgH64WCnld+y4/cPDwyM/Ua5UbbVaNeK9YvEK+pX6+MVfs85RrpQoJTE7bn+cv/rDL3DvV57CWaFaKweKdGcjSRFLlDEQxRCFpBGju3hCoIGHzzA/CKL65gjD4HyouzvdRa16f6eQyZfc4tMcn9kQ31WglyujCmUUz3yjzchYleuvP5+3f/9LOH3TBM1WG9vPIO7TWlhWI2aRbGHabrtarRrNzMx+bPWqDe/osLa+3sP/hhlAzwhu1krd4HbsuPN9tVr1xnKlIoNDw9KPE/QOW5+wf97JDWqDFfBw7207+eSf38Ldt+6k1bBUB6qUSgmiwoi3SH99p1E6QkUmeAgTQaTBFLe5YxhdougiRaliukK8INbhrQ/SuD4MglJ4Hm0MgiJNc1rtlInVNV792vN46w2Xcc7Z68nyjHY7R2u9HHjYi/FKLRkUKaj1vt1qUa1W9Fx97n+vWXXaz3SwmG/E4X9DDaCnTipaKeXuu/urP5iUkz8aHB4xg0ODTittwq68XhW+vBHIgvTc+/BvagMVRITHH9jF5z55J3d8aSeH9s+g0JQqCVESdXgfYceB9MmcdX5OMRgqSheM4d7DlyVLIsF3Gi5Fpq6iEAKcF9I8p5Va4lLMWWev4TWvO49ve92FbNk0Tp7nNFt5yAXUqaCLfXQkIewZctblWWbCosjWT69fu/n/fCNi/r+pASyuDu6/545XmcT81cjo6NpypWqTJInCOjm1QHruZF02FF1soFork8QxRw8d596vPsGt//wgD9/3LMeP1hGnSJJS2C7W2bDR4RR01MD75WC7yqiqxwkzBYTcCRvFyKqzYTdxbi1RSbNu4yiXX3kmr3zNBVx88RaGBiu00zTceNUBpPSJn7AslODrVDVpmlqtVJSm6Uxm83dsWLv5U8Uzdaew6uibbwD9RvDgg3dtAfXnw8NDV0dxyddqNUREd2nlLGS0nlCzr5CXwwtJElGpJogXDuw9zs4HdvPwfc/y5MN72b/rGLPTTWweFi2aKCKKo+70stI9pq6g8Kp/L4LgvMM6j3UeL0IcG0YmBth61houumQLl15+Jtsv2Miq8UG8BJja5gWY01e7a6XgRB5gkQGASJpmvlQqmfn5+R3O5j+wfv3WJ76eOv+bZgD9ZJKbbrrJnHHGul9Nksp/GxoeplqtWaN15PqVsnQf5VpOzrFDwBcCTKVSQrlaQqnQdTy8/zi7nzrIc08eYM9zRziyf4bpyQbz9TbtVk6ehaUWPVxIhaw/iajWSgwOVxhdPcjajaNs3rqGM85exxnb1rF2/SiVUlBPabUz8jxsANUrKZYrelzJEzxqpRXOOWtzGymlSNvtP3jiied++tprr22fiM/3H94AghG8X8MHRCklDzxw1+uU4vfGRse3mjj2lUoFQHvve0MjSq0s9Ljc7iPp7TaGsLMvTiKSJA4ytiJk7ZxmI6U536bZaJG2cvI0DxwDwj7kpBxTriTUBsrUBstUqqUA9qBxeLI0D2NthRyb1gHllIXdpWVHDnoDMUtjv4BP05QkifV8ff6QeP8T69dv+USn+fZCGjv/IQ2g83NuuSUARvfcc894EsuvRLF59/DoKOVyxZrALlEdabOu4KFf5pXKCrTrDg9A6d6yq+KK6wKcMVqjTVjQ3IvRumirhazfOx9mGUOXLbR/dUj+FrBzRC1qcp2YYbQg3BV9ZeecE+8ja3PyPP/Lmenmz23fvv3gv0Wy9802gMIb3GSUusEB3PvAV6+LVfxrwyPDlyRJmXK5bJVSplvjdmpkOYXBHtVbs6pVp6Wrl9kPvUj5u7PFs29kTHVRy4VcAdXPN1xmDFyUnJRrWHgC8d47a/Moigz1en2nePn5jRvP+HR/2Pz3OpN/VwPoA420Usrdcsst0fBo+T0a9d/HxsbXR3FCqVSyQcehILdqdWprPjv9nc6SSrXYCJZakCxYZnlignS3u9kZ81iylLmfU8CSQVqltIh4l+d5FMWGen1uUgkfcu7Ihzdtemnr3/PWf1MNYDGvAOCBB25bpXXyE4h69/iqiYkoikmSxBY9EH1CYd3uLe0rLUUWzRSo3poXtdxQywr9imVS9sXxfDlP0N0KHpBG77331tooMorZ2blZZcyfiMv/z6ZN2w58M279fwgD6D6/kOg4gB07dqyLtH2PaPXD42Nja5JSCa2Nj6JIOhrnK+vg9eUF0uPv9R9qdzNHv1Zgv2KfOpkR9G3x6CO9KFELYOnQ+BRvba5Qgc4xMzM7pYz6M2ei3zl9/el7OqXyNddc4/69b/1/JANYwDfslDsPPHDbKqWit4mo/zwwMHjB8PBQkJ+LIxdUs/3KxrDECDpxXp/SgkilWHC4K6yRKFxJHzUbJUop773DO2e0VrTaLdqt5pPGmD/33v3l5s3bD3Zu/DfD3f+HNYDl8oPOg3r44XtfLV7+k0J92+j42EilWgkZuTFOay3iRXeaUR3yyAKE2UuXPXtK+6LpF13US5ZPdZdHI4LSorXx3nvlvTdaK2yeMTszU0fxRTB/Ya3+l7PPPjv9j3bw/yENYCWP0AkPWrLrRfNmY6KXjowOj9ZqA2htOmojTmktiChRqI5RdNdzLZ73Ezmxq+/bQaBU+JY9PSlRIs5oHbQ52u02s7MzdbzcpSP9j6VS+TMbN561rx8V/Wa7+m8pA1g6oBpErDpffOyee9amkX+ZUrxaa/VSY6JzRkZG4kqlUugMq77GjipuXDg/kb5iT7GkMugcUoARvALRug8+Drp9KdMz0847/7RS6i5j9BeTJPlqJ6nrY1Cr/2g3/lvNAJabS/CL0bEdO24/QylzEfhLtTIXoDjLGL0+jpPBarVKnAQGb3dpk+4fYOmNt3crBQlgUJ5ntNtt8jyfF/GHgGe957FI6R1eqYe2b7/o2f7XIiL61ltv1bfeequ/8cYb/bfCc42+VQyguEW23xgArr32WnvppVc9BzwH/H3x59HOnfevT9PWpmZzfosIm7Q2a0FWK6XGQZeVkuFFV2EOoa0Ux0EdBQ6L6H1K6edF8n1RNHDg/PPPz1im6QVw6623dgzT8y308f8CfRXeIMhZkCwAAAAASUVORK5CYII=">
+      <span>© 2026 Dan Mayaffit. All rights reserved.</span>
+    </div>
   </div>
 </div>
-
-<table>
-  <thead>
-    <tr>
-      <th class="month-col">Month</th>
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-      <th class="day-head">Tu</th>
-      <th class="day-head">We</th>
-      <th class="day-head">Th</th>
-      <th class="day-head">Fr</th>
-      <th class="day-head sat-col">Sa</th>
-
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-      <th class="day-head">Tu</th>
-      <th class="day-head">We</th>
-      <th class="day-head">Th</th>
-      <th class="day-head">Fr</th>
-      <th class="day-head sat-col">Sa</th>
-
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-      <th class="day-head">Tu</th>
-      <th class="day-head">We</th>
-      <th class="day-head">Th</th>
-      <th class="day-head">Fr</th>
-      <th class="day-head sat-col">Sa</th>
-
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-      <th class="day-head">Tu</th>
-      <th class="day-head">We</th>
-      <th class="day-head">Th</th>
-      <th class="day-head">Fr</th>
-      <th class="day-head sat-col">Sa</th>
-
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-      <th class="day-head">Tu</th>
-      <th class="day-head">We</th>
-      <th class="day-head">Th</th>
-      <th class="day-head">Fr</th>
-      <th class="day-head sat-col">Sa</th>
-
-      <th class="day-head">Su</th>
-      <th class="day-head">Mo</th>
-    </tr>
-  </thead>
-  <tbody id="calendar-body"></tbody>
-</table>
-
-<div class="footer">
-  <img src="Dan_logo_blueGreen.png" alt="Dan Mayaffit Logo" class="footer-logo">
-  <span class="footer-text">&copy; 2026 Dan Mayaffit. All rights reserved.</span>
-</div>
-
 <script>
-  // Hebrew Calendar Algorithmic Engine (Exact calculations for 2020–2050+)
-  function isHebrewLeapYear(hYear) {
-    return ((7 * hYear + 1) % 19) < 7;
+// ---- Hebrew calendar arithmetic (Reingold & Dershowitz) ----
+const EPOCH = -1373427;
+const isLeap = y => ((7 * y + 1) % 19) < 7;
+const monthsInYear = y => isLeap(y) ? 13 : 12;
+function elapsedDays(y) {
+  const m = Math.floor((235 * y - 234) / 19);
+  const parts = 12084 + 13753 * m;
+  let d = 29 * m + Math.floor(parts / 25920);
+  if ((3 * (d + 1)) % 7 < 3) d++;
+  return d;
+}
+function yearDelay(y) {
+  const a = elapsedDays(y - 1), b = elapsedDays(y), c = elapsedDays(y + 1);
+  if (c - b === 356) return 2;
+  if (b - a === 382) return 1;
+  return 0;
+}
+const newYear = y => EPOCH + elapsedDays(y) + yearDelay(y);
+const daysInYear = y => newYear(y + 1) - newYear(y);
+function monthLength(y, m) {
+  if ([2, 4, 6, 10, 13].includes(m)) return 29;
+  if (m === 12 && !isLeap(y)) return 29;
+  if (m === 8 && daysInYear(y) % 10 !== 5) return 29;
+  if (m === 9 && daysInYear(y) % 10 === 3) return 29;
+  return 30;
+}
+function hebToFixed(y, m, d) {
+  let f = newYear(y) + d - 1;
+  if (m < 7) {
+    for (let i = 7; i <= monthsInYear(y); i++) f += monthLength(y, i);
+    for (let i = 1; i < m; i++) f += monthLength(y, i);
+  } else {
+    for (let i = 7; i < m; i++) f += monthLength(y, i);
   }
+  return f;
+}
+const fixedToDate = f => new Date(Date.UTC(1970, 0, 1) + (f - 719163) * 86400000);
+const hebToDate = (y, m, d) => fixedToDate(hebToFixed(y, m, d));
+const addDays = (dt, n) => new Date(dt.getTime() + n * 86400000);
+const dow = dt => dt.getUTCDay();
+const keyOf = dt => dt.toISOString().slice(0, 10);
 
-  function getHebrewMonthsCount(hYear) {
-    return isHebrewLeapYear(hYear) ? 13 : 12;
+// ---- Holidays (Israel). Every listed day is tinted and labelled. ----
+const HEB_ORD = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ז׳','ח׳'];
+function holidaysFor(G) {
+  const map = new Map();                 // key -> [label, ...]
+  const put = (dt, text) => {
+    if (dt.getUTCFullYear() !== G) return;
+    const k = keyOf(dt);
+    if (!map.has(k)) map.set(k, []);
+    map.get(k).push(text);
+  };
+  for (const hy of [G + 3760, G + 3761]) {
+    const H = (m, d) => hebToDate(hy, m, d);
+    const ADAR = isLeap(hy) ? 13 : 12;
+    put(H(6, 29), 'ערב ראש השנה');
+    put(H(7, 1), 'ראש השנה א׳');
+    put(H(7, 2), 'ראש השנה ב׳');
+    let g = H(7, 3); if (dow(g) === 6) g = addDays(g, 1); put(g, 'צום גדליה');
+    put(H(7, 9), 'ערב יום כיפור');
+    put(H(7, 10), 'יום כיפור');
+    put(H(7, 14), 'ערב סוכות');
+    put(H(7, 15), 'סוכות');
+    for (let d = 16; d <= 20; d++) put(H(7, d), 'חוה״מ סוכות');
+    put(H(7, 21), 'הושענא רבה');
+    put(H(7, 22), 'שמחת תורה');
+    const h1 = H(9, 25);
+    for (let i = 0; i < 8; i++) put(addDays(h1, i), 'חנוכה ' + HEB_ORD[i]);
+    put(H(10, 10), 'עשרה בטבת');
+    put(H(11, 15), 'ט״ו בשבט');
+    let te = H(ADAR, 13); if (dow(te) === 6) te = addDays(te, -2); put(te, 'תענית אסתר');
+    put(H(ADAR, 14), 'פורים');
+    put(H(ADAR, 15), 'שושן פורים');
+    put(H(1, 14), 'ערב פסח');
+    put(H(1, 15), 'פסח');
+    for (let d = 16; d <= 20; d++) put(H(1, d), 'חוה״מ פסח');
+    put(H(1, 21), 'שביעי של פסח');
+    let sh = H(1, 27); if (dow(sh) === 5) sh = addDays(sh, -1); else if (dow(sh) === 0) sh = addDays(sh, 1);
+    put(sh, 'יום השואה');
+    let atz = H(2, 5);
+    if (dow(atz) === 5) atz = addDays(atz, -1);
+    else if (dow(atz) === 6) atz = addDays(atz, -2);
+    else if (dow(atz) === 1) atz = addDays(atz, 1);
+    put(addDays(atz, -1), 'יום הזיכרון');
+    put(atz, 'יום העצמאות');
+    put(H(2, 18), 'ל״ג בעומר');
+    put(H(2, 28), 'יום ירושלים');
+    put(H(3, 5), 'ערב שבועות');
+    put(H(3, 6), 'שבועות');
+    let t17 = H(4, 17); if (dow(t17) === 6) t17 = addDays(t17, 1); put(t17, 'צום י״ז בתמוז');
+    let t9 = H(5, 9); if (dow(t9) === 6) t9 = addDays(t9, 1); put(t9, 'תשעה באב');
   }
+  return map;
+}
 
-  // Days from absolute epoch to 1 Tishrei
-  function hebrewCalendarElapsedDays(hYear) {
-    const monthsElapsed = Math.floor((235 * hYear - 234) / 19);
-    const partsElapsed = 12084 + 13753 * monthsElapsed;
-    const day = monthsElapsed * 29 + Math.floor(partsElapsed / 25920);
-    const parts = partsElapsed % 25920;
-
-    let altDay;
-    if ((parts >= 19440) ||
-        (((day % 7) === 2) && (parts >= 9924) && (!isHebrewLeapYear(hYear))) ||
-        (((day % 7) === 1) && (parts >= 16789) && (isHebrewLeapYear(hYear - 1)))) {
-      altDay = day + 1;
-    } else {
-      altDay = day;
+// ---- Weeks & cards ----
+const RANKS = ['A','K','Q','J','10','9','8','7','6','5','4','3','2'];
+const SUITS = [['♠','black'],['♥','red'],['♦','red'],['♣','black']];
+function weeksFor(G) {
+  const out = new Map();
+  let d = new Date(Date.UTC(G, 0, 1));
+  while (dow(d) !== 0) d = addDays(d, 1);
+  let n = 1;
+  while (d.getUTCFullYear() === G) {
+    out.set(keyOf(d), { week: n });
+    const mon = addDays(d, 1);
+    if (mon.getUTCFullYear() === G) {
+      const s = SUITS[Math.floor((n - 1) / 13)];
+      out.set(keyOf(mon), { card: n <= 52 ? { text: RANKS[(n - 1) % 13] + s[0], cls: s[1] } : { text: '🃏', cls: 'joker' } });
     }
+    d = addDays(d, 7); n++;
+  }
+  return out;
+}
 
-    if ([0, 3, 5].includes(altDay % 7)) {
-      altDay += 1;
+// ---- Render ----
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(G) {
+  const hol = holidaysFor(G), wk = weeksFor(G);
+  const now = new Date();
+  const todayKey = keyOf(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())));
+  let h = '<colgroup><col class="mcol">' + '<col>'.repeat(37) + '</colgroup><thead><tr><th class="mhead">MONTH</th>';
+  for (let c = 0; c < 37; c++) h += `<th class="${c % 7 === 6 ? 'sat' : ''}">${WD[c % 7]}</th>`;
+  h += '</tr></thead><tbody>';
+  for (let m = 0; m < 12; m++) {
+    const first = dow(new Date(Date.UTC(G, m, 1)));
+    const len = new Date(Date.UTC(G, m + 1, 0)).getUTCDate();
+    h += `<tr><th class="month" scope="row">${MONTHS[m]}</th>`;
+    for (let c = 0; c < 37; c++) {
+      const d = c - first + 1;
+      const sat = c % 7 === 6;
+      if (d < 1 || d > len) { h += `<td class="${sat ? 'sat' : 'empty'}"></td>`; continue; }
+      const k = keyOf(new Date(Date.UTC(G, m, d)));
+      const labels = hol.get(k), w = wk.get(k);
+      const cls = [sat && 'sat', labels && 'hol', k === todayKey && 'today'].filter(Boolean).join(' ');
+      let inner = `<span class="day-num">${d}</span>`;
+      if (labels) inner += `<span class="holiday-text">${labels.map(esc).join(' · ')}</span>`;
+      if (w && w.week) inner += `<span class="week-num">W${w.week}</span>`;
+      if (w && w.card) inner += `<span class="card-badge ${w.card.cls}">${w.card.text}</span>`;
+      const title = labels ? ` title="${esc(labels.join(' · '))}"` : '';
+      h += `<td class="${cls}" data-date="${k}"${title}><div class="cell">${inner}</div></td>`;
     }
-    return altDay;
+    h += '</tr>';
   }
+  h += '</tbody>';
+  document.getElementById('cal').innerHTML = h;
+  document.getElementById('heading').textContent = G + ' • Israel Calendar';
+  document.title = G + ' • Israel Calendar';
+}
 
-  function getDaysInHebrewYear(hYear) {
-    return hebrewCalendarElapsedDays(hYear + 1) - hebrewCalendarElapsedDays(hYear);
-  }
-
-  function getHebrewMonthLength(hYear, hMonth) {
-    // 1: Tishrei, 2: Cheshvan, 3: Kislev, 4: Tevet, 5: Shevat, 
-    // 6: Adar (or Adar I), 7: Adar II, 8: Nisan, 9: Iyar, 10: Sivan, 11: Tammuz, 12: Av, 13: Elul
-    const yearLength = getDaysInHebrewYear(hYear);
-    const isLeap = isHebrewLeapYear(hYear);
-
-    if ([1, 5, 8, 10, 12].includes(hMonth)) return 30;
-    if ([4, 11, 13].includes(hMonth)) return 29;
-    if (hMonth === 6) return isLeap ? 30 : 29;
-    if (hMonth === 7) return 29;
-
-    // Cheshvan (2) and Kislev (3) vary
-    if (hMonth === 2) return (yearLength === 355 || yearLength === 385) ? 30 : 29;
-    if (hMonth === 3) return (yearLength === 353 || yearLength === 383) ? 29 : 30;
-    return 29;
-  }
-
-  // Convert Hebrew Date to Gregorian Date
-  function hebrewToGregorian(hYear, hMonth, hDay) {
-    // Epoch: 1 Tishrei 3761 AM = Sep 7, -3760 (Astronomical)
-    let absDate = hebrewCalendarElapsedDays(hYear) - 1373429;
-    for (let m = 1; m < hMonth; m++) {
-      absDate += getHebrewMonthLength(hYear, m);
-    }
-    absDate += (hDay - 1);
-    
-    // Julian Day Number to JS Date
-    const jd = absDate + 1721425.5;
-    const z = Math.floor(jd + 0.5);
-    const a = Math.floor((z - 1867216.25) / 36524.25);
-    const b = z + 1 + a - Math.floor(a / 4);
-    const c = b + 1524;
-    const d = Math.floor((c - 122.1) / 365.25);
-    const e = Math.floor(365.25 * d);
-    const f = Math.floor((c - e) / 30.6001);
-    const day = c - e - Math.floor(30.6001 * f);
-    const month = (f < 14) ? f - 2 : f - 14;
-    const year = (month > 1) ? d - 4716 : d - 4715;
-
-    return new Date(year, month, day);
-  }
-
-  // Dynamically generate all Israeli holidays and observances for any target Gregorian year
-  function getHolidaysForYear(gYear) {
-    const hYearStart = gYear + 3760;
-    const hYearEnd = gYear + 3761;
-    const result = {};
-
-    function addHoliday(date, name) {
-      if (date.getFullYear() === gYear) {
-        result[`${date.getMonth()}-${date.getDate()}`] = name;
-      }
-    }
-
-    [hYearStart, hYearEnd].forEach(hYr => {
-      const isLeap = isHebrewLeapYear(hYr);
-      const adarMonth = isLeap ? 7 : 6;
-
-      // Tishrei holidays
-      addHoliday(hebrewToGregorian(hYr, 1, 1), "ראש השנה א'");
-      addHoliday(hebrewToGregorian(hYr, 1, 2), "ראש השנה ב'");
-
-      // Tzom Gedaliah (postponed if Saturday)
-      const gedaliahDate = hebrewToGregorian(hYr, 1, 3);
-      if (gedaliahDate.getDay() === 6) gedaliahDate.setDate(gedaliahDate.getDate() + 1);
-      addHoliday(gedaliahDate, "צום גדליה");
-
-      addHoliday(hebrewToGregorian(hYr, 1, 9), "ערב יום כיפור");
-      addHoliday(hebrewToGregorian(hYr, 1, 10), "יום כיפור");
-      addHoliday(hebrewToGregorian(hYr, 1, 14), "ערב סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 15), "סוכות א'");
-      addHoliday(hebrewToGregorian(hYr, 1, 16), "חוה\"מ סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 17), "חוה\"מ סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 18), "חוה\"מ סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 19), "חוה\"מ סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 20), "חוה\"מ סוכות");
-      addHoliday(hebrewToGregorian(hYr, 1, 21), "הושענא רבה");
-      addHoliday(hebrewToGregorian(hYr, 1, 22), "שמחת תורה");
-
-      // Hanukkah (8 days starting 25 Kislev)
-      let hanukkahDate = hebrewToGregorian(hYr, 3, 25);
-      const hebrewNums = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "ז'", "ח'"];
-      for (let i = 0; i < 8; i++) {
-        const d = new Date(hanukkahDate);
-        d.setDate(d.getDate() + i);
-        addHoliday(d, `חנוכה ${hebrewNums[i]}`);
-      }
-
-      // Tu BiShvat
-      addHoliday(hebrewToGregorian(hYr, 5, 15), "ט\"ו בשבט");
-
-      // Ta'anit Esther (moved to Thursday if 13 Adar is Saturday)
-      const estherDate = hebrewToGregorian(hYr, adarMonth, 13);
-      if (estherDate.getDay() === 6) estherDate.setDate(estherDate.getDate() - 2);
-      addHoliday(estherDate, "תענית אסתר");
-
-      addHoliday(hebrewToGregorian(hYr, adarMonth, 14), "פורים");
-      addHoliday(hebrewToGregorian(hYr, adarMonth, 15), "שושן פורים");
-
-      // Pesach
-      addHoliday(hebrewToGregorian(hYr, 8, 14), "ערב פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 15), "פסח א'");
-      addHoliday(hebrewToGregorian(hYr, 8, 16), "חוה\"מ פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 17), "חוה\"מ פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 18), "חוה\"מ פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 19), "חוה\"מ פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 20), "חוה\"מ פסח");
-      addHoliday(hebrewToGregorian(hYr, 8, 21), "שביעי של פסח");
-
-      // Yom HaShoah (Nissan 27, shifts to prevent Shabbat conflict)
-      const shoahDate = hebrewToGregorian(hYr, 8, 27);
-      if (shoahDate.getDay() === 5) shoahDate.setDate(shoahDate.getDate() - 1);
-      else if (shoahDate.getDay() === 0) shoahDate.setDate(shoahDate.getDate() + 1);
-      addHoliday(shoahDate, "יום השואה");
-
-      // Yom HaZikaron & Yom HaAtzma'ut (Iyar 4 & 5, with standard shifting laws)
-      let zikaronDate = hebrewToGregorian(hYr, 9, 4);
-      let atzmautDate = hebrewToGregorian(hYr, 9, 5);
-      if (atzmautDate.getDay() === 5) { // Friday -> shifted to Thursday
-        zikaronDate.setDate(zikaronDate.getDate() - 1);
-        atzmautDate.setDate(atzmautDate.getDate() - 1);
-      } else if (atzmautDate.getDay() === 6) { // Saturday -> shifted to Thursday
-        zikaronDate.setDate(zikaronDate.getDate() - 2);
-        atzmautDate.setDate(atzmautDate.getDate() - 2);
-      } else if (zikaronDate.getDay() === 0) { // Sunday -> shifted to Monday
-        zikaronDate.setDate(zikaronDate.getDate() + 1);
-        atzmautDate.setDate(atzmautDate.getDate() + 1);
-      }
-      addHoliday(zikaronDate, "יום הזיכרון");
-      addHoliday(atzmautDate, "יום העצמאות");
-
-      // Lag BaOmer
-      addHoliday(hebrewToGregorian(hYr, 9, 18), "ל\"ג בעומר");
-
-      // Yom Yerushalayim
-      addHoliday(hebrewToGregorian(hYr, 9, 28), "יום ירושלים");
-
-      // Shavuot
-      addHoliday(hebrewToGregorian(hYr, 10, 5), "ערב שבועות");
-      addHoliday(hebrewToGregorian(hYr, 10, 6), "שבועות");
-
-      // Tzom Tammuz (17 Tammuz, postponed if Saturday)
-      const tammuzDate = hebrewToGregorian(hYr, 11, 17);
-      if (tammuzDate.getDay() === 6) tammuzDate.setDate(tammuzDate.getDate() + 1);
-      addHoliday(tammuzDate, "צום תמוז");
-
-      // Tish'a B'Av (9 Av, postponed if Saturday)
-      const avDate = hebrewToGregorian(hYr, 12, 9);
-      if (avDate.getDay() === 6) avDate.setDate(avDate.getDate() + 1);
-      addHoliday(avDate, "תשעה באב");
-    });
-
-    return result;
-  }
-
-  // 52 Playing cards setup
-  const ranks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
-  const suits = [
-    { symbol: "♠", color: "black" },
-    { symbol: "♥", color: "red" },
-    { symbol: "♦", color: "red" },
-    { symbol: "♣", color: "black" }
-  ];
-
-  const deck = [];
-  suits.forEach(suit => {
-    ranks.forEach(rank => {
-      deck.push({ rank: rank, symbol: suit.symbol, color: suit.color });
-    });
-  });
-
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  function createCardElement(card) {
-    const span = document.createElement('span');
-    span.className = `card-badge ${card.color === 'red' ? 'card-red' : 'card-black'}`;
-    span.innerHTML = `${card.rank}<span class="suit-sym">${card.symbol}</span>`;
-    return span;
-  }
-
-  function renderCalendar(year) {
-    document.getElementById('calendar-title').innerHTML = `${year} &bull; Israel Calendar`;
-    const holidays = getHolidaysForYear(year);
-
-    // First whole week starts on the first Sunday of the year
-    let firstSunDay = 1;
-    while (new Date(year, 0, firstSunDay).getDay() !== 0) {
-      firstSunDay++;
-    }
-    const firstSunday = new Date(year, 0, firstSunDay);
-    const firstMonday = new Date(year, 0, firstSunDay + 1);
-
-    function getWeekNumberForSunday(mIdx, day) {
-      const d = new Date(year, mIdx, day);
-      const diffDays = Math.round((d - firstSunday) / (1000 * 60 * 60 * 24));
-      if (diffDays < 0) return null;
-      return Math.floor(diffDays / 7) + 1;
-    }
-
-    function getWeekNumberForMonday(mIdx, day) {
-      const d = new Date(year, mIdx, day);
-      const diffDays = Math.round((d - firstMonday) / (1000 * 60 * 60 * 24));
-      if (diffDays < 0) return null;
-      return Math.floor(diffDays / 7) + 1;
-    }
-
-    const tbody = document.getElementById('calendar-body');
-    tbody.innerHTML = '';
-
-    for (let mIdx = 0; mIdx < 12; mIdx++) {
-      const daysInMonth = new Date(year, mIdx + 1, 0).getDate();
-      const startDay = new Date(year, mIdx, 1).getDay();
-
-      const tr = document.createElement('tr');
-      const nameTd = document.createElement('td');
-      nameTd.className = 'month-name';
-      nameTd.textContent = monthNames[mIdx];
-      tr.appendChild(nameTd);
-
-      let dayCounter = 1;
-
-      for (let c = 0; c < 37; c++) {
-        const td = document.createElement('td');
-        const dayOfWeek = c % 7;
-        const isSunday = (dayOfWeek === 0);
-        const isMonday = (dayOfWeek === 1);
-        const isSat = (dayOfWeek === 6);
-
-        if (isSat) td.classList.add('sat-col');
-
-        if (c >= startDay && dayCounter <= daysInMonth) {
-          td.className += ' cell';
-          const hKey = `${mIdx}-${dayCounter}`;
-          const holidayName = holidays[hKey];
-
-          if (holidayName) td.classList.add('is-holiday');
-
-          const container = document.createElement('div');
-          container.className = 'cell-content';
-
-          // 1. Day number at top
-          const daySpan = document.createElement('span');
-          daySpan.className = 'day-num';
-          daySpan.textContent = dayCounter;
-          container.appendChild(daySpan);
-
-          // 2. Holiday name in Hebrew
-          if (holidayName) {
-            const holSpan = document.createElement('span');
-            holSpan.className = 'holiday-text';
-            holSpan.textContent = holidayName;
-            container.appendChild(holSpan);
-          }
-
-          // 3. Week number at bottom of Sunday
-          if (isSunday) {
-            const wNumSun = getWeekNumberForSunday(mIdx, dayCounter);
-            if (wNumSun && wNumSun <= 52) {
-              const weekSpan = document.createElement('span');
-              weekSpan.className = 'week-badge';
-              weekSpan.textContent = `W${wNumSun}`;
-              container.appendChild(weekSpan);
-            }
-          }
-
-          // 4. Card symbol at bottom of Monday
-          if (isMonday) {
-            const wNumMon = getWeekNumberForMonday(mIdx, dayCounter);
-            if (wNumMon && wNumMon >= 1 && wNumMon <= 52) {
-              const card = deck[wNumMon - 1];
-              container.appendChild(createCardElement(card));
-            }
-          }
-
-          td.appendChild(container);
-          dayCounter++;
-        } else {
-          td.className += ' empty';
-        }
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
-  }
-
-  // Populate Year Select options dynamically from 2026 to 2050
-  const yearSelect = document.getElementById('year-select');
-  for (let y = 2026; y <= 2050; y++) {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    if (y === 2027) opt.selected = true;
-    yearSelect.appendChild(opt);
-  }
-
-  yearSelect.addEventListener('change', (e) => {
-    renderCalendar(parseInt(e.target.value, 10));
-  });
-
-  // Initial render (2027)
-  renderCalendar(parseInt(yearSelect.value, 10));
+// ---- Init ----
+const sel = document.getElementById('year');
+for (let y = 2026; y <= 2050; y++) sel.add(new Option(String(y), String(y)));
+const DEFAULT_YEAR = Math.min(2050, Math.max(2026, new Date().getFullYear()));
+sel.value = String(DEFAULT_YEAR);
+sel.addEventListener('change', () => render(+sel.value));
+document.getElementById('print').addEventListener('click', () => window.print());
+render(DEFAULT_YEAR);
 </script>
-
 </body>
 </html>
